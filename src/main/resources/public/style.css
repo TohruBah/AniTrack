@@ -1,0 +1,133 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #10131c;
+    color: #f4f5fb;
+    font-family: Segoe UI, Arial, sans-serif;
+}
+
+main {
+    width: min(1000px, 94%);
+    margin: 35px auto;
+}
+
+header {
+    margin-bottom: 28px;
+}
+
+header p {
+    color: #a99aff;
+    letter-spacing: 3px;
+    font-size: 12px;
+}
+
+h1 {
+    font-size: 48px;
+    margin: 5px 0;
+}
+
+header span {
+    color: #a7adbd;
+}
+
+section {
+    background: #1b2030;
+    border: 1px solid #30384d;
+    border-radius: 16px;
+    padding: 22px;
+    margin: 18px 0;
+}
+
+label {
+    display: block;
+    margin: 12px 0;
+    color: #cbd0df;
+}
+
+input,
+select {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #3a435b;
+    background: #111725;
+    color: white;
+}
+
+button {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #9585ff;
+    color: #111322;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+button:hover {
+    background: #aa9cff;
+}
+
+/* Catálogo */
+.item {
+    padding: 12px;
+    margin: 10px 0;
+    background: #111725;
+    border-radius: 9px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Informações do anime */
+.item > span {
+    flex: 1 1 220px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Grupo de ações */
+.item > div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Botões do catálogo */
+.item button {
+    margin: 0 !important;
+}
+
+/* Mensagens */
+.muted {
+    color: #a7adbd;
+}
+
+/* Telas menores */
+@media (max-width: 650px) {
+    main {
+        width: 94%;
+        margin: 20px auto;
+    }
+
+    .item {
+        align-items: stretch;
+    }
+
+    .item > div {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}

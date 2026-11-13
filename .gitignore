@@ -1,0 +1,15 @@
+
+# Maven
+target/
+
+# Banco de dados local
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# VS Code
+.vscode/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
