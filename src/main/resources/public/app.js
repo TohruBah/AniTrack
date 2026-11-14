@@ -5,6 +5,20 @@ const message = document.querySelector("#message");
 
 let editingId = null;
 
+// Cache das capas para evitar pesquisas repetidas
+const coverCache = new Map();
+
+// Imagem substituta caso não encontre capa
+const fallbackCover = "data:image/svg+xml," + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="160" height="220">
+        <rect width="100%" height="100%" fill="#24213d"/>
+        <text x="50%" y="48%" text-anchor="middle"
+              fill="#c8b4f0" font-size="42">✧</text>
+        <text x="50%" y="65%" text-anchor="middle"
+              fill="#a9a3c9" font-size="12">AniTrack</text>
+    </svg>
+`);
+
 // Campo de pesquisa
 const search = document.createElement("input");
 search.type = "search";
@@ -24,6 +38,94 @@ cancelButton.style.marginLeft = "8px";
 cancelButton.style.display = "none";
 
 submitButton.insertAdjacentElement("afterend", cancelButton);
+
+// Normalizar títulos para comparação
+function normalizeTitle(title) {
+    return title
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+}
+
+// Buscar capa na Kitsu API
+async function findAnimeCover(title) {
+    const cacheKey = normalizeTitle(title);
+
+    if (coverCache.has(cacheKey)) {
+        return coverCache.get(cacheKey);
+    }
+
+    const request = (async () => {
+        try {
+            const url =
+                `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}&page[limit]=10`;
+
+            const response = await fetch(url, {
+                headers: {
+                    "Accept": "application/vnd.api+json"
+                }
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const result = await response.json();
+            const animes = result.data || [];
+
+            // Procurar correspondência pelo título
+            const wanted = normalizeTitle(title);
+
+            const match = animes.find(anime => {
+                const attributes = anime.attributes;
+                const titles = attributes.titles || {};
+
+                const possibleTitles = [
+                    attributes.canonicalTitle,
+                    ...Object.values(titles)
+                ].filter(Boolean);
+
+                return possibleTitles.some(name => {
+                    const normalized = normalizeTitle(name);
+
+                    return normalized === wanted ||
+                        normalized.includes(wanted) ||
+                        wanted.includes(normalized);
+                });
+            });
+
+            if (!match) {
+                return null;
+            }
+
+            const poster = match.attributes.posterImage;
+
+            return poster?.medium ||
+                poster?.small ||
+                poster?.large ||
+                poster?.original ||
+                null;
+
+        } catch (error) {
+            console.error("Erro ao buscar capa:", error);
+            return null;
+        }
+    })();
+
+    coverCache.set(cacheKey, request);
+
+    return request;
+}
+
+// Carregar imagem do anime
+async function loadCover(title, image) {
+    const cover = await findAnimeCover(title);
+
+    if (cover) {
+        image.src = cover;
+    }
+}
 
 // Atualizar favorito
 async function toggleFavorite(anime) {
@@ -103,13 +205,37 @@ async function load() {
         const item = document.createElement("div");
         item.className = "item";
 
-        // Informações do anime
-        const info = document.createElement("span");
-        info.textContent =
-            `${anime.title} — ${anime.watchedEpisodes}/${anime.totalEpisodes} • ${anime.status}`;
+        // Capa do anime
+        const coverContainer = document.createElement("div");
+        coverContainer.className = "anime-cover";
 
-        // Área de ações
+        const coverImage = document.createElement("img");
+        coverImage.src = fallbackCover;
+        coverImage.alt = `Capa de ${anime.title}`;
+        coverImage.loading = "lazy";
+
+        coverImage.onerror = () => {
+            coverImage.src = fallbackCover;
+        };
+
+        coverContainer.append(coverImage);
+
+        // Informações
+        const info = document.createElement("div");
+        info.className = "anime-info";
+
+        const title = document.createElement("h3");
+        title.textContent = anime.title;
+
+        const details = document.createElement("p");
+        details.textContent =
+            `${anime.watchedEpisodes}/${anime.totalEpisodes} episódios • ${anime.status}`;
+
+        info.append(title, details);
+
+        // Ações
         const actions = document.createElement("div");
+        actions.className = "anime-actions";
 
         // Favoritos
         const favoriteButton = document.createElement("button");
@@ -117,10 +243,6 @@ async function load() {
         favoriteButton.textContent = anime.favorite
             ? "⭐ Favorito"
             : "☆ Favoritar";
-
-        favoriteButton.title = anime.favorite
-            ? "Remover dos favoritos"
-            : "Adicionar aos favoritos";
 
         favoriteButton.onclick = () => toggleFavorite(anime);
 
@@ -189,8 +311,11 @@ async function load() {
             deleteButton
         );
 
-        item.append(info, actions);
+        item.append(coverContainer, info, actions);
         list.append(item);
+
+        // Buscar a capa sem bloquear a montagem do catálogo
+        loadCover(anime.title, coverImage);
     });
 }
 
@@ -232,7 +357,6 @@ form.addEventListener("submit", async event => {
     data.totalEpisodes = Number(data.totalEpisodes);
     data.watchedEpisodes = Number(data.watchedEpisodes);
 
-    // Validação do progresso
     if (
         !Number.isInteger(data.totalEpisodes) ||
         data.totalEpisodes <= 0
