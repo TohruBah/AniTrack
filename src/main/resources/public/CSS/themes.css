@@ -52,19 +52,16 @@ body[data-theme="gentildonna"] {
 }
 
 /* Fundos, textos e superfícies principais */
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) {
     background-color: var(--theme-bg) !important;
     color: var(--theme-text) !important;
     transition: background-color .25s ease, color .25s ease;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar {
     background: var(--theme-sidebar) !important;
     border-color: var(--theme-border) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content {
     background-color: var(--theme-bg) !important;
     background-image:
         radial-gradient(ellipse at 85% 5%, var(--theme-glow), transparent 42%),
@@ -74,187 +71,128 @@ body[data-theme="gentildonna"] .main-content {
     background-size: cover;
     background-attachment: fixed;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-brand,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-brand > span,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .page-header h1,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content h1,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content h2,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content h3,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content p,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content span,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content label,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .user-details strong {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-brand,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-brand > span,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .page-header h1,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content h1,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content h2,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content h3,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content p,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content span,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content label,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .user-details strong {
     color: var(--theme-text) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-brand > span > span,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-label,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .eyebrow,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .section-symbol {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-brand > span > span,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-label,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .eyebrow,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .section-symbol {
     color: var(--theme-accent) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-label,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .user-details span {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-label,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .user-details span {
     color: var(--theme-muted) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .page-header,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-brand,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .sidebar-bottom {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .page-header,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-brand,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .sidebar-bottom {
     border-color: var(--theme-border) !important;
 }
 
 /* Navegação */
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .nav-item {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .nav-item {
     color: var(--theme-muted) !important;
     border-color: transparent !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .nav-item:hover {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .nav-item:hover {
     color: var(--theme-text) !important;
     background: var(--theme-glow) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .nav-item.active {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .nav-item.active {
     color: var(--theme-button-text) !important;
     background: linear-gradient(115deg, var(--theme-accent), var(--theme-accent-2)) !important;
 }
 
 /* Cartões e painéis do catálogo */
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .item,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .stat-card,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .main-content .form-section,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .profile-modal-content,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .auth-panel {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .item,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .stat-card,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .main-content .form-section,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .profile-modal-content,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .auth-panel {
     color: var(--theme-text) !important;
     background: linear-gradient(145deg, var(--theme-card-a), var(--theme-card-b)) !important;
     border-color: var(--theme-border) !important;
     box-shadow: 0 10px 28px rgba(0, 0, 0, .24), 0 0 18px var(--theme-glow) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .item-own {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .item-own {
     border-left-color: var(--theme-accent) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .item-shared {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .item-shared {
     border-left-color: var(--theme-accent-2) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-info h3,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .stat-card strong {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-info h3,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .stat-card strong {
     color: var(--theme-text) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-info p,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .progress-text,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .library-label,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .stat-card span {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-info p,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .progress-text,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .library-label,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .stat-card span {
     color: var(--theme-muted) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-progress {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-progress {
     background: rgba(255, 255, 255, .14) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-progress-bar {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-progress-bar {
     background: linear-gradient(90deg, var(--theme-accent), var(--theme-accent-2)) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-actions {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-actions {
     border-color: var(--theme-border) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-actions button,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-actions select,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .secondary-button,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .edit-profile-button {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-actions button,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-actions select,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .secondary-button,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .edit-profile-button {
     color: var(--theme-text) !important;
     background: var(--theme-control) !important;
     border-color: var(--theme-border) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #list .anime-actions button:hover,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .secondary-button:hover,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .edit-profile-button:hover {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #list .anime-actions button:hover,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .secondary-button:hover,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .edit-profile-button:hover {
     border-color: var(--theme-accent) !important;
     box-shadow: 0 0 14px var(--theme-glow) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .primary-button,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] #addAnimeButton {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .primary-button,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) #addAnimeButton {
     color: var(--theme-button-text) !important;
     background: linear-gradient(120deg, var(--theme-accent), var(--theme-accent-2)) !important;
     border-color: var(--theme-border) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .status-badge,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .status-planejado,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .status-assistindo,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .status-pausado,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .status-concluido {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .status-badge,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .status-planejado,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .status-assistindo,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .status-pausado,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .status-concluido {
     color: var(--theme-text) !important;
     background: var(--theme-glow) !important;
     border-color: var(--theme-border) !important;
 }
 
 /* Campos */
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] input,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] select,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] textarea,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] .catalog-search {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) input,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) select,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) textarea,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) .catalog-search {
     color: var(--theme-text) !important;
     background-color: var(--theme-control) !important;
     border-color: var(--theme-border) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] input::placeholder,
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] textarea::placeholder {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) input::placeholder,
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) textarea::placeholder {
     color: var(--theme-muted) !important;
 }
-body[data-theme="maomao"],
-body[data-theme="gentildonna"] option {
+:is(body[data-theme="maomao"], body[data-theme="gentildonna"]) option {
     color: var(--theme-text);
     background: var(--theme-sidebar);
 }
