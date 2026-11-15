@@ -1382,15 +1382,19 @@ body {
 #list.anime-list {
     width: 100% !important;
     max-width: none !important;
-    grid-template-columns: repeat(4, minmax(0, 245px)) !important;
-    justify-content: start !important;
-    gap: 20px !important;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(min(100%, 220px), 1fr)
+    ) !important;
+    justify-content: stretch !important;
+    gap: 22px !important;
 }
 
 #list .item {
     width: 100% !important;
-    max-width: 245px !important;
-    min-width: 0;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* Organizar os botões */
@@ -1407,21 +1411,26 @@ body {
     white-space: nowrap;
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 900px) {
     #list.anime-list {
-        grid-template-columns: repeat(3, minmax(0, 245px)) !important;
-    }
-}
-
-@media (max-width: 850px) {
-    #list.anime-list {
-        grid-template-columns: repeat(2, minmax(0, 245px)) !important;
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(min(100%, 200px), 1fr)
+        ) !important;
+        gap: 16px !important;
     }
 }
 
 @media (max-width: 520px) {
     #list.anime-list {
-        grid-template-columns: minmax(0, 245px) !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    #list.anime-list {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -2587,4 +2596,81 @@ body {
     border-radius: 50% !important;
     padding: 0 !important;
     margin: 0 !important;
+}
+
+/* ==========================================
+   ANITRACK — RESPONSIVIDADE DO CATÁLOGO
+   ========================================== */
+
+/* Tablets e telas médias */
+@media (max-width: 900px) {
+    #list.anime-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 16px !important;
+    }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+    .main-content {
+        padding: 18px 12px !important;
+    }
+
+    #catalogView #list.anime-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    #list .item {
+        max-width: none !important;
+        padding: 8px !important;
+    }
+
+    #list .anime-cover {
+        width: 100% !important;
+        aspect-ratio: 3 / 4 !important;
+    }
+
+    #list .anime-info {
+        gap: 7px !important;
+        padding: 10px 3px !important;
+    }
+
+    #list .anime-info h3 {
+        font-size: 13px !important;
+        overflow-wrap: anywhere;
+    }
+
+    #list .anime-info p {
+        font-size: 10px !important;
+    }
+
+    #list .anime-actions {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+    }
+
+    #list .anime-actions button,
+    #list .anime-actions select {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 34px !important;
+        font-size: 11px !important;
+    }
+
+    #addAnimeButton {
+        right: 16px !important;
+        bottom: 16px !important;
+    }
+}
+
+/* Celulares muito pequenos */
+@media (max-width: 380px) {
+    #catalogView #list.anime-list {
+        grid-template-columns: 1fr !important;
+    }
+
+    #list .item {
+        max-width: 100% !important;
+    }
 }
