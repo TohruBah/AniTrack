@@ -202,3 +202,151 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-icon { 
 .theme-select-wrap { display:flex; align-items:center; gap:8px; padding:0 10px; border:1px solid var(--panel-border); border-radius:11px; background:rgba(20,20,35,.85); }
 .theme-select-wrap select { width:100%; min-width:0; padding:10px 2px; border:0; outline:0; color:#f4f1ff; background:transparent; font:600 12px 'Nunito',sans-serif; }
 .theme-select-wrap select option { background:#192923; color:#f0f5e9; }
+
+
+
+/* ==========================================
+   MAOMAO — SOBRESCRITA VISUAL DEFINITIVA
+   Deve ficar no FINAL de themes.css
+========================================== */
+
+body[data-theme="maomao"] {
+    --theme-bg: #101b18 !important;
+    --theme-sidebar: rgba(12, 31, 26, .98) !important;
+    --theme-panel: rgba(23, 49, 40, .97) !important;
+    --theme-card: rgba(30, 61, 48, .98) !important;
+    --theme-accent: #a9cf83 !important;
+    --theme-accent2: #dfc27b !important;
+    --theme-border: rgba(163, 204, 151, .38) !important;
+    --theme-text: #f0f5e9 !important;
+    --theme-muted: #bfd0bd !important;
+    --theme-control: rgba(28, 57, 46, .98) !important;
+    --theme-glow: rgba(117, 207, 165, .23) !important;
+}
+
+/* Fundo principal */
+body[data-theme="maomao"],
+body[data-theme="maomao"] html {
+    background-color: #101b18 !important;
+    color: #f0f5e9 !important;
+}
+
+body[data-theme="maomao"] .main-content {
+    background:
+        linear-gradient(135deg, rgba(9, 26, 21, .72), rgba(12, 34, 27, .58)),
+        url('/images/anitrack-wallpaper.png') center / cover fixed !important;
+}
+
+/* Barra lateral */
+body[data-theme="maomao"] .sidebar {
+    background: rgba(12, 31, 26, .98) !important;
+    color: #f0f5e9 !important;
+    border-color: rgba(163, 204, 151, .38) !important;
+}
+
+body[data-theme="maomao"] .sidebar-brand,
+body[data-theme="maomao"] .sidebar-label,
+body[data-theme="maomao"] .user-details,
+body[data-theme="maomao"] .sidebar-nav {
+    color: #f0f5e9 !important;
+}
+
+body[data-theme="maomao"] .nav-item {
+    color: #bfd0bd !important;
+    background: transparent !important;
+}
+
+body[data-theme="maomao"] .nav-item:hover {
+    background: rgba(117, 207, 165, .16) !important;
+    color: #ffffff !important;
+}
+
+body[data-theme="maomao"] .nav-item.active {
+    background: linear-gradient(115deg, #a9cf83, #75cfc0) !important;
+    color: #10251c !important;
+}
+
+/* Cartões dos animes */
+body[data-theme="maomao"] #list .item {
+    background: linear-gradient(145deg, #1e3d30, #142b23) !important;
+    border: 1px solid rgba(163, 204, 151, .38) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .30),
+                0 0 14px rgba(117, 207, 165, .12) !important;
+}
+
+body[data-theme="maomao"] #list .item:hover {
+    border-color: #a9cf83 !important;
+}
+
+body[data-theme="maomao"] #list .anime-info h3,
+body[data-theme="maomao"] #list .anime-info p,
+body[data-theme="maomao"] #list .progress-text {
+    color: #f0f5e9 !important;
+}
+
+/* Progresso */
+body[data-theme="maomao"] #list .anime-progress {
+    background: rgba(255, 255, 255, .13) !important;
+}
+
+body[data-theme="maomao"] #list .anime-progress-bar {
+    background: linear-gradient(90deg, #75cfc0, #a9cf83, #dfc27b) !important;
+}
+
+/* Pesquisa e campos */
+body[data-theme="maomao"] .catalog-search,
+body[data-theme="maomao"] input,
+body[data-theme="maomao"] select,
+body[data-theme="maomao"] textarea {
+    background-color: #1c392e !important;
+    color: #f0f5e9 !important;
+    border-color: rgba(163, 204, 151, .38) !important;
+}
+
+body[data-theme="maomao"] input::placeholder {
+    color: #bfd0bd !important;
+}
+
+/* Botões */
+body[data-theme="maomao"] #addAnimeButton,
+body[data-theme="maomao"] .primary-button,
+body[data-theme="maomao"] .edit-profile-button {
+    background: linear-gradient(120deg, #a9cf83, #75cfc0) !important;
+    color: #10251c !important;
+    border-color: #a9cf83 !important;
+}
+
+body[data-theme="maomao"] .secondary-button,
+body[data-theme="maomao"] .logout-button,
+body[data-theme="maomao"] #list .anime-actions button,
+body[data-theme="maomao"] #list .anime-actions select {
+    background: #1c392e !important;
+    color: #f0f5e9 !important;
+    border-color: rgba(163, 204, 151, .38) !important;
+}
+
+/* Títulos e destaques */
+body[data-theme="maomao"] .main-content h1,
+body[data-theme="maomao"] .main-content h2,
+body[data-theme="maomao"] .main-content h3,
+body[data-theme="maomao"] .main-content p,
+body[data-theme="maomao"] .main-content label {
+    color: #f0f5e9 !important;
+}
+
+body[data-theme="maomao"] .eyebrow,
+body[data-theme="maomao"] .section-symbol,
+body[data-theme="maomao"] .catalog-search > span {
+    color: #a9cf83 !important;
+}
+
+/* Seletor de tema */
+body[data-theme="maomao"] .theme-select-wrap {
+    background: #1c392e !important;
+    border-color: #a9cf83 !important;
+}
+
+body[data-theme="maomao"] .theme-select-wrap select {
+    background: transparent !important;
+    color: #f0f5e9 !important;
+}
