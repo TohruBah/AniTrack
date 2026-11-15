@@ -329,3 +329,92 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel * {
     background-attachment: scroll !important;
   }
 }
+
+
+/* ==========================================
+   ANITRACK — SELETOR DE TEMAS PREMIUM
+========================================== */
+
+.theme-switcher {
+    margin: 18px 5px 20px !important;
+}
+
+.theme-select-wrap {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+
+    min-height: 49px;
+    padding: 0 13px !important;
+
+    border: 1px solid var(--theme-border, rgba(190,160,255,.3)) !important;
+    border-radius: 14px !important;
+
+    background: linear-gradient(
+        135deg,
+        var(--theme-panel, rgba(35,25,45,.9)),
+        var(--theme-card, rgba(45,30,50,.95))
+    ) !important;
+
+    box-shadow:
+        0 5px 16px rgba(0,0,0,.18),
+        inset 0 1px rgba(255,255,255,.06);
+
+    backdrop-filter: blur(14px);
+    transition: .25s ease;
+}
+
+.theme-select-wrap:hover {
+    border-color: var(--theme-accent, #d7bd78) !important;
+
+    box-shadow:
+        0 5px 18px var(--theme-glow, rgba(0,0,0,.2)),
+        inset 0 1px rgba(255,255,255,.08);
+
+    transform: translateY(-1px);
+}
+
+.theme-select-icon {
+    flex-shrink: 0;
+    color: var(--theme-accent, #d7bd78) !important;
+    font-size: 17px;
+    filter: drop-shadow(0 0 5px var(--theme-glow));
+}
+
+.theme-select-wrap select {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 47px;
+
+    padding: 0 25px 0 2px !important;
+
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 10px;
+
+    color: var(--theme-text, #fff) !important;
+    background-color: transparent !important;
+
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+
+    cursor: pointer;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d7bd78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right center !important;
+}
+
+.theme-select-wrap select:focus-visible {
+    outline: 2px solid var(--theme-accent) !important;
+    outline-offset: 3px;
+}
+
+.theme-select-wrap select option {
+    color: var(--theme-text, #fff) !important;
+    background: var(--theme-sidebar, #241522) !important;
+}
