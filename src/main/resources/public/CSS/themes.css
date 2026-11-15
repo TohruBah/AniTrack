@@ -1,7 +1,10 @@
-/* AniTrack — identidade visual dos temas alternativos.
-   Este arquivo deve ser carregado depois de style.css e CSS/layout.css. */
+/* ==========================================================
+   AniTrack — temas alternativos
+   Carregar depois de style.css e CSS/layout.css.
+   O tema Original não recebe nenhuma regra deste arquivo.
+   ========================================================== */
 
-/* MAOMAO — botânico, jade, ervas e dourado */
+/* ---------- PALETA MAOMAO: jade, ervas e dourado ---------- */
 body[data-theme="maomao"] {
   color-scheme: dark;
   --background: #101b18;
@@ -19,6 +22,7 @@ body[data-theme="maomao"] {
   --panel-border: rgba(151, 199, 158, .30);
   --hydro: #75cfc0;
   --lavender: #a4c98f;
+
   --theme-bg: #101b18;
   --theme-sidebar: rgba(12, 31, 26, .98);
   --theme-panel: rgba(23, 49, 40, .96);
@@ -30,12 +34,11 @@ body[data-theme="maomao"] {
   --theme-muted: #bfd0bd;
   --theme-control: rgba(28, 57, 46, .98);
   --theme-glow: rgba(117, 207, 165, .23);
-  background-color: var(--theme-bg) !important;
-  background-image: linear-gradient(135deg, rgba(9, 26, 21, .72), rgba(12, 34, 27, .58)), url('/images/anitrack-wallpaper.png') !important;
-  color: var(--theme-text) !important;
+  --theme-overlay: linear-gradient(135deg, rgba(9, 26, 21, .48), rgba(12, 34, 27, .30));
+  --theme-wallpaper: url('/images/maomao-wallpaper.png');
 }
 
-/* GENTILDONNA — imperial, vinho, carmesim e dourado */
+/* ---------- PALETA GENTILDONNA: vinho, rubi e ouro ---------- */
 body[data-theme="gentildonna"] {
   color-scheme: dark;
   --background: #1b1018;
@@ -53,6 +56,7 @@ body[data-theme="gentildonna"] {
   --panel-border: rgba(220, 166, 112, .32);
   --hydro: #d58a9c;
   --lavender: #e5b66f;
+
   --theme-bg: #1b1018;
   --theme-sidebar: rgba(35, 14, 25, .99);
   --theme-panel: rgba(61, 24, 42, .97);
@@ -64,18 +68,22 @@ body[data-theme="gentildonna"] {
   --theme-muted: #dfc2c8;
   --theme-control: rgba(70, 29, 48, .98);
   --theme-glow: rgba(188, 89, 111, .25);
+  --theme-overlay: linear-gradient(135deg, rgba(25, 8, 19, .48), rgba(52, 14, 31, .34));
+  --theme-wallpaper: url('/images/gentildonna-wallpaper.png');
+}
+
+/* ---------- FUNDO E ESTRUTURA ---------- */
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) {
   background-color: var(--theme-bg) !important;
-  background-image: linear-gradient(135deg, rgba(25, 8, 19, .78), rgba(52, 14, 31, .58)), url('/images/anitrack-wallpaper.png') !important;
+  background-image: var(--theme-overlay), var(--theme-wallpaper) !important;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
   color: var(--theme-text) !important;
 }
 
-/* Elementos estruturais e superfícies compartilhados pelos dois temas */
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .background-effects .glow-blue,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .background-effects .glow-purple {
-  background: var(--theme-accent) !important;
-  opacity: .22 !important;
-}
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #appContent,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #appContent.app-layout,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .app-layout,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .page-view,
@@ -85,17 +93,71 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) #addAnimeView {
   color: var(--theme-text) !important;
   background-color: transparent !important;
 }
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--theme-bg) 88%, transparent), color-mix(in srgb, var(--theme-panel) 74%, transparent)), url('/images/anitrack-wallpaper.png') center / cover fixed !important;
+  background: var(--theme-overlay), var(--theme-wallpaper) center / cover fixed !important;
 }
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .background-effects .glow-blue,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .background-effects .glow-purple {
+  background: var(--theme-accent) !important;
+  opacity: .20 !important;
+}
+
+/* ---------- SIDEBAR E NAVEGAÇÃO ---------- */
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar {
-  background: var(--theme-sidebar) !important;
   color: var(--theme-text) !important;
-  border-right-color: var(--theme-border) !important;
+  background: var(--theme-sidebar) !important;
+  border-right: 1px solid var(--theme-border) !important;
 }
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand > span,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .page-header h1,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .user-details strong {
+  color: var(--theme-text) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-bottom {
+  border-color: var(--theme-border) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand > span > span,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-label,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .eyebrow,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .section-symbol,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .catalog-search > span,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-icon {
+  color: var(--theme-accent) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-label,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .user-details span {
+  color: var(--theme-muted) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .brand-icon {
+  color: var(--theme-bg) !important;
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent2)) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item {
+  color: var(--theme-muted) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item:hover {
+  color: var(--theme-text) !important;
+  background: var(--theme-glow) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item.active {
+  color: var(--theme-bg) !important;
+  background: linear-gradient(115deg, var(--theme-accent), var(--theme-accent2)) !important;
+}
+
+/* ---------- TÍTULOS, TEXTOS E CABEÇALHOS ---------- */
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content h1,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content h2,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content h3,
@@ -105,47 +167,23 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stats-dashboard,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stats-dashboard * {
   color: var(--theme-text) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand > span > span,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-label,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .eyebrow,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .section-symbol,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .catalog-search > span {
-  color: var(--theme-accent) !important;
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .page-header {
+  border-bottom-color: var(--theme-border) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-label,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .user-details span,
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .page-header p,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-info p,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .progress-text {
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .progress-text,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .library-label,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-actions small {
   color: var(--theme-muted) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .page-header,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-brand,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .sidebar-bottom {
-  border-color: var(--theme-border) !important;
-}
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .brand-icon {
-  color: var(--theme-bg) !important;
-  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent2)) !important;
-}
 
-/* Navegação */
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item {
-  color: var(--theme-muted) !important;
-  border-color: transparent !important;
-}
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item:hover {
-  color: var(--theme-text) !important;
-  background: var(--theme-glow) !important;
-}
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item.active {
-  color: var(--theme-bg) !important;
-  background: linear-gradient(115deg, var(--theme-accent), var(--theme-accent2)) !important;
-}
-
-/* Busca, formulários, cartões e estatísticas */
+/* ---------- PAINÉIS, BUSCA, CARDS E ESTATÍSTICAS ---------- */
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .catalog-search,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content .form-section,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #addAnimeView .form-section,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .profile-modal-content,
@@ -155,26 +193,92 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel {
   border: 1px solid var(--theme-border) !important;
   box-shadow: 0 10px 28px rgba(0,0,0,.25), 0 0 18px var(--theme-glow) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item-own { border-left: 4px solid var(--theme-accent) !important; }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item-shared { border-left: 4px solid var(--theme-accent2) !important; }
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item-own {
+  border-left: 4px solid var(--theme-accent) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item-shared {
+  border-left: 4px solid var(--theme-accent2) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .item:hover {
+  border-color: var(--theme-accent) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.30), 0 0 22px var(--theme-glow) !important;
+}
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-info h3,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card strong { color: var(--theme-text) !important; }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card span,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .library-label { color: var(--theme-muted) !important; }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-progress { background: rgba(255,255,255,.15) !important; }
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card strong {
+  color: var(--theme-text) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card span {
+  color: var(--theme-muted) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-progress {
+  background: rgba(255,255,255,.14) !important;
+}
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-progress-bar,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card .stat-icon { background: linear-gradient(120deg, var(--theme-accent), var(--theme-accent2)) !important; }
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .stat-card .stat-icon {
+  color: var(--theme-bg) !important;
+  background: linear-gradient(120deg, var(--theme-accent), var(--theme-accent2)) !important;
+}
+
+/* ---------- STATUS DOS ANIMES ---------- */
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge {
+  color: var(--theme-text) !important;
+  background: var(--theme-glow) !important;
+  border: 1px solid var(--theme-border) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-concluido,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-assistindo,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-pausado,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-planejado {
+  color: var(--theme-text) !important;
+  background: var(--theme-glow) !important;
+}
+
+/* ---------- CAMPOS E SELETORES ---------- */
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) input,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) select,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) textarea,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .catalog-search {
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content input,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content select,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content textarea,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #addAnimeView .field input,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #addAnimeView .field select {
   color: var(--theme-text) !important;
   background-color: var(--theme-control) !important;
   border-color: var(--theme-border) !important;
 }
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) input::placeholder,
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) textarea::placeholder { color: var(--theme-muted) !important; }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) option { color: var(--theme-text); background: var(--theme-sidebar); }
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) textarea::placeholder {
+  color: var(--theme-muted) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) input:focus,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) select:focus,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) textarea:focus {
+  border-color: var(--theme-accent) !important;
+  box-shadow: 0 0 0 3px var(--theme-glow) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) option {
+  color: var(--theme-text) !important;
+  background: var(--theme-sidebar) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-wrap {
+  background: var(--theme-control) !important;
+  border-color: var(--theme-border) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-wrap select {
+  color: var(--theme-text) !important;
+  background: transparent !important;
+}
+
+/* ---------- BOTÕES ---------- */
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .primary-button,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) #addAnimeButton,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item.active {
@@ -182,6 +286,7 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .nav-item.active {
   background: linear-gradient(120deg, var(--theme-accent), var(--theme-accent2)) !important;
   border-color: var(--theme-border) !important;
 }
+
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .secondary-button,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .edit-profile-button,
 body:is([data-theme="maomao"], [data-theme="gentildonna"]) .logout-button,
@@ -191,162 +296,36 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-actions 
   background: var(--theme-control) !important;
   border-color: var(--theme-border) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-wrap {
-  background: var(--theme-control) !important;
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) button:hover,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-actions button:hover {
+  border-color: var(--theme-accent) !important;
+  box-shadow: 0 0 14px var(--theme-glow) !important;
+}
+
+/* ---------- MODAIS, PERFIL E AUTENTICAÇÃO ---------- */
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal-content,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .profile-modal,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .profile-modal-content,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel {
+  color: var(--theme-text) !important;
+  background: linear-gradient(145deg, var(--theme-panel), var(--theme-card)) !important;
   border-color: var(--theme-border) !important;
 }
-body:is([data-theme="maomao"], [data-theme="gentildonna"]) .theme-select-icon { color: var(--theme-accent) !important; }
 
-/* O seletor também acompanha a identidade do tema */
-.theme-switcher { margin: 16px 5px 18px; }
-.theme-select-wrap { display:flex; align-items:center; gap:8px; padding:0 10px; border:1px solid var(--panel-border); border-radius:11px; background:rgba(20,20,35,.85); }
-.theme-select-wrap select { width:100%; min-width:0; padding:10px 2px; border:0; outline:0; color:#f4f1ff; background:transparent; font:600 12px 'Nunito',sans-serif; }
-.theme-select-wrap select option { background:#192923; color:#f0f5e9; }
-
-
-
-/* ==========================================
-   MAOMAO — SOBRESCRITA VISUAL DEFINITIVA
-   Deve ficar no FINAL de themes.css
-========================================== */
-
-body[data-theme="maomao"] {
-    --theme-bg: #101b18 !important;
-    --theme-sidebar: rgba(12, 31, 26, .98) !important;
-    --theme-panel: rgba(23, 49, 40, .97) !important;
-    --theme-card: rgba(30, 61, 48, .98) !important;
-    --theme-accent: #a9cf83 !important;
-    --theme-accent2: #dfc27b !important;
-    --theme-border: rgba(163, 204, 151, .38) !important;
-    --theme-text: #f0f5e9 !important;
-    --theme-muted: #bfd0bd !important;
-    --theme-control: rgba(28, 57, 46, .98) !important;
-    --theme-glow: rgba(117, 207, 165, .23) !important;
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal h1,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal h2,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal h3,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .modal label,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .profile-modal-content *,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel * {
+  color: var(--theme-text);
 }
 
-/* Fundo principal */
-body[data-theme="maomao"],
-body[data-theme="maomao"] html {
-    background-color: #101b18 !important;
-    color: #f0f5e9 !important;
-}
-
-body[data-theme="maomao"] .main-content {
-    background:
-        linear-gradient(135deg, rgba(9, 26, 21, .72), rgba(12, 34, 27, .58)),
-        url('/images/anitrack-wallpaper.png') center / cover fixed !important;
-}
-
-/* Barra lateral */
-body[data-theme="maomao"] .sidebar {
-    background: rgba(12, 31, 26, .98) !important;
-    color: #f0f5e9 !important;
-    border-color: rgba(163, 204, 151, .38) !important;
-}
-
-body[data-theme="maomao"] .sidebar-brand,
-body[data-theme="maomao"] .sidebar-label,
-body[data-theme="maomao"] .user-details,
-body[data-theme="maomao"] .sidebar-nav {
-    color: #f0f5e9 !important;
-}
-
-body[data-theme="maomao"] .nav-item {
-    color: #bfd0bd !important;
-    background: transparent !important;
-}
-
-body[data-theme="maomao"] .nav-item:hover {
-    background: rgba(117, 207, 165, .16) !important;
-    color: #ffffff !important;
-}
-
-body[data-theme="maomao"] .nav-item.active {
-    background: linear-gradient(115deg, #a9cf83, #75cfc0) !important;
-    color: #10251c !important;
-}
-
-/* Cartões dos animes */
-body[data-theme="maomao"] #list .item {
-    background: linear-gradient(145deg, #1e3d30, #142b23) !important;
-    border: 1px solid rgba(163, 204, 151, .38) !important;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, .30),
-                0 0 14px rgba(117, 207, 165, .12) !important;
-}
-
-body[data-theme="maomao"] #list .item:hover {
-    border-color: #a9cf83 !important;
-}
-
-body[data-theme="maomao"] #list .anime-info h3,
-body[data-theme="maomao"] #list .anime-info p,
-body[data-theme="maomao"] #list .progress-text {
-    color: #f0f5e9 !important;
-}
-
-/* Progresso */
-body[data-theme="maomao"] #list .anime-progress {
-    background: rgba(255, 255, 255, .13) !important;
-}
-
-body[data-theme="maomao"] #list .anime-progress-bar {
-    background: linear-gradient(90deg, #75cfc0, #a9cf83, #dfc27b) !important;
-}
-
-/* Pesquisa e campos */
-body[data-theme="maomao"] .catalog-search,
-body[data-theme="maomao"] input,
-body[data-theme="maomao"] select,
-body[data-theme="maomao"] textarea {
-    background-color: #1c392e !important;
-    color: #f0f5e9 !important;
-    border-color: rgba(163, 204, 151, .38) !important;
-}
-
-body[data-theme="maomao"] input::placeholder {
-    color: #bfd0bd !important;
-}
-
-/* Botões */
-body[data-theme="maomao"] #addAnimeButton,
-body[data-theme="maomao"] .primary-button,
-body[data-theme="maomao"] .edit-profile-button {
-    background: linear-gradient(120deg, #a9cf83, #75cfc0) !important;
-    color: #10251c !important;
-    border-color: #a9cf83 !important;
-}
-
-body[data-theme="maomao"] .secondary-button,
-body[data-theme="maomao"] .logout-button,
-body[data-theme="maomao"] #list .anime-actions button,
-body[data-theme="maomao"] #list .anime-actions select {
-    background: #1c392e !important;
-    color: #f0f5e9 !important;
-    border-color: rgba(163, 204, 151, .38) !important;
-}
-
-/* Títulos e destaques */
-body[data-theme="maomao"] .main-content h1,
-body[data-theme="maomao"] .main-content h2,
-body[data-theme="maomao"] .main-content h3,
-body[data-theme="maomao"] .main-content p,
-body[data-theme="maomao"] .main-content label {
-    color: #f0f5e9 !important;
-}
-
-body[data-theme="maomao"] .eyebrow,
-body[data-theme="maomao"] .section-symbol,
-body[data-theme="maomao"] .catalog-search > span {
-    color: #a9cf83 !important;
-}
-
-/* Seletor de tema */
-body[data-theme="maomao"] .theme-select-wrap {
-    background: #1c392e !important;
-    border-color: #a9cf83 !important;
-}
-
-body[data-theme="maomao"] .theme-select-wrap select {
-    background: transparent !important;
-    color: #f0f5e9 !important;
+/* ---------- AJUSTES RESPONSIVOS ---------- */
+@media (max-width: 600px) {
+  body:is([data-theme="maomao"], [data-theme="gentildonna"]) .main-content {
+    background-attachment: scroll !important;
+  }
 }
