@@ -22,6 +22,7 @@
 
 <!-- Personalizações do layout -->
 <link rel="stylesheet" href="/CSS/layout.css">
+<link rel="stylesheet" href="/CSS/themes.css">
 </head>
 
 <body>
@@ -186,6 +187,18 @@
                     </button>
 
                 </nav>
+            </div>
+
+            <!-- SELETOR DE TEMA -->
+            <div class="theme-switcher">
+                <label class="sidebar-label" for="themeSelect">APARÊNCIA</label>
+                <div class="theme-select-wrap">
+                    <span class="theme-select-icon" aria-hidden="true">✦</span>
+                    <select id="themeSelect" aria-label="Escolher tema do AniTrack">
+                        <option value="maomao">Maomao — Botânica</option>
+                        <option value="gentildonna">Gentildonna — Imperial</option>
+                    </select>
+                </div>
             </div>
 
             <div class="sidebar-bottom">
@@ -526,6 +539,7 @@
     <script src="/supabase-config.js"></script>
     <script src="/auth.js"></script>
     <script src="/catalog.js"></script>
+    <script src="/theme.js"></script>
 
 </body>
 </html>
