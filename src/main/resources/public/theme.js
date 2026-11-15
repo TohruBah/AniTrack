@@ -6,16 +6,24 @@
     if (!select) return;
 
     const STORAGE_KEY = "anitrack-theme";
-    const validThemes = ["maomao", "gentildonna"];
+    const validThemes = ["original", "maomao", "gentildonna"];
 
     function applyTheme(theme) {
-        const selectedTheme = validThemes.includes(theme) ? theme : "maomao";
+        const selectedTheme = validThemes.includes(theme) ? theme : "original";
 
-        document.body.dataset.theme = selectedTheme;
+        if (selectedTheme === "original") {
+            delete document.body.dataset.theme;
+        } else {
+            document.body.dataset.theme = selectedTheme;
+        }
         select.value = selectedTheme;
 
         // Atualiza a cor da barra do navegador em dispositivos compatíveis.
-        const themeColor = selectedTheme === "gentildonna" ? "#351827" : "#203c35";
+        const themeColor = selectedTheme === "gentildonna"
+            ? "#351827"
+            : selectedTheme === "maomao"
+                ? "#203c35"
+                : "#111426";
         let metaTheme = document.querySelector('meta[name="theme-color"]');
 
         if (metaTheme) {
@@ -29,9 +37,9 @@
         }
     }
 
-    let savedTheme = "maomao";
+    let savedTheme = "original";
     try {
-        savedTheme = localStorage.getItem(STORAGE_KEY) || "maomao";
+        savedTheme = localStorage.getItem(STORAGE_KEY) || "original";
     } catch (error) {
         console.warn("AniTrack: não foi possível recuperar a preferência de tema.", error);
     }
