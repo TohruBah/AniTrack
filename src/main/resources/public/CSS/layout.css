@@ -2747,3 +2747,56 @@ body {
     cursor: not-allowed;
     opacity: .88;
 }
+
+/* AniTrack Modern Library */
+.catalog-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.catalog-toolbar .catalog-search{flex:1 1 280px;min-width:220px}
+.library-controls{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.library-control-button,.library-sort,.view-toggle-button,.filter-clear-button{border:1px solid var(--border-color,rgba(190,170,240,.24));background:var(--card-bg,rgba(35,29,58,.78));color:var(--text-color,#f2edff);border-radius:12px;min-height:42px;padding:9px 13px;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+.library-control-button:hover,.view-toggle-button:hover,.filter-clear-button:hover{transform:translateY(-1px);border-color:var(--accent-color,#a98af5)}
+.filter-count{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:20px;background:var(--accent-color,#8e72df);color:white;font-size:11px;margin-left:4px}
+.library-sort-label{color:var(--muted-color,#aaa2c2);font-size:12px}
+.library-sort{min-width:190px}
+.view-toggle{display:flex;gap:4px;padding:3px;border:1px solid var(--border-color,rgba(190,170,240,.24));border-radius:13px;background:var(--card-bg,rgba(35,29,58,.55))}
+.view-toggle-button{min-width:36px;min-height:34px;padding:5px 9px;border:0;background:transparent}
+.view-toggle-button.is-active{background:var(--accent-color,#8e72df);color:white}
+.library-filter-panel{width:100%;margin-top:12px;padding:18px;border:1px solid var(--border-color,rgba(190,170,240,.25));border-radius:18px;background:var(--card-bg,rgba(29,24,49,.92));box-shadow:0 18px 45px rgba(0,0,0,.18)}
+.library-filter-panel[hidden]{display:none!important}
+.filter-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.filter-panel-heading div{display:grid;gap:3px}
+.filter-panel-heading span{color:var(--muted-color,#aaa2c2);font-size:12px}
+.filter-clear-button{min-height:34px;padding:6px 10px;font-size:12px}
+.filter-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.filter-fields label{display:grid;gap:7px;color:var(--muted-color,#aaa2c2);font-size:12px}
+.filter-fields select{width:100%;min-width:0;min-height:42px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-color,rgba(190,170,240,.24));background:var(--input-bg,rgba(15,13,29,.8));color:var(--text-color,#f2edff)}
+.anime-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:22px;align-items:stretch}
+.anime-list .item-modern{min-width:0;display:flex;flex-direction:column;overflow:hidden;padding:0;border:1px solid var(--border-color,rgba(190,170,240,.2));border-radius:17px;background:var(--card-bg,rgba(31,26,52,.82));box-shadow:0 8px 24px rgba(0,0,0,.12);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.anime-list .item-modern:hover{transform:translateY(-5px);border-color:var(--accent-color,#a98af5);box-shadow:0 16px 34px rgba(0,0,0,.24)}
+.item-modern .anime-cover{position:relative;width:100%;aspect-ratio:2/3;overflow:hidden;background:rgba(120,100,160,.12)}
+.item-modern .anime-cover img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.item-modern:hover .anime-cover img{transform:scale(1.045)}
+.item-modern .status-overlay{position:absolute;left:9px;bottom:9px;z-index:2;padding:6px 9px;border-radius:20px;backdrop-filter:blur(10px);font-size:10px}
+.item-modern .favorite-overlay-button{position:absolute;top:9px;right:9px;z-index:3;width:35px;height:35px;border:1px solid rgba(255,255,255,.3);border-radius:50%;background:rgba(15,12,27,.78);color:#fff;font-size:20px;cursor:pointer}
+.item-modern .favorite-overlay-button.is-favorite{color:#ff9ed5}
+.item-modern .anime-info{display:flex;flex:1;flex-direction:column;gap:8px;padding:13px 13px 8px;min-width:0}
+.item-modern .anime-info h3{margin:0;font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:39px}
+.anime-card-meta{display:flex;flex-wrap:wrap;gap:5px;min-height:20px}
+.anime-card-meta span{border:1px solid var(--border-color,rgba(190,170,240,.2));border-radius:20px;padding:3px 7px;color:var(--muted-color,#aaa2c2);font-size:9px}
+.item-modern .anime-episode-count{margin:0;color:var(--muted-color,#aaa2c2);font-size:11px}
+.item-modern .anime-progress{width:100%;height:5px;overflow:hidden;border-radius:8px;background:rgba(150,135,180,.2)}
+.item-modern .anime-progress-bar{height:100%;border-radius:8px;background:var(--accent-color,#a98af5)}
+.item-modern .progress-text,.item-modern .anime-card-rating{color:var(--muted-color,#aaa2c2);font-size:10px}
+.item-modern .anime-card-rating{margin-top:auto}
+.item-modern .anime-actions{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px}
+.item-modern .anime-actions button,.item-modern .anime-actions select{flex:1 1 auto;min-width:0;min-height:32px;padding:6px 8px;border-radius:9px;font-size:11px}
+.anime-list-view{grid-template-columns:1fr;gap:10px}
+.anime-list-view .item-modern{display:grid;grid-template-columns:82px minmax(0,1fr) auto;align-items:center;gap:14px;padding:10px}
+.anime-list-view .item-modern .anime-cover{width:82px;aspect-ratio:2/3;border-radius:9px}
+.anime-list-view .item-modern .status-overlay{left:4px;bottom:4px;padding:3px 5px;font-size:8px}
+.anime-list-view .item-modern .favorite-overlay-button{width:27px;height:27px;top:4px;right:4px;font-size:15px}
+.anime-list-view .item-modern .anime-info{padding:0}
+.anime-list-view .item-modern .anime-info h3{min-height:0}
+.anime-list-view .item-modern .anime-actions{padding:0;flex-direction:column;min-width:100px}
+.library-empty{grid-column:1/-1;padding:34px;text-align:center;border:1px dashed var(--border-color,rgba(190,170,240,.25));border-radius:16px}
+@media(max-width:760px){.filter-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.library-controls{width:100%}.library-sort{flex:1;min-width:140px}.anime-list{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}.anime-list-view .item-modern{grid-template-columns:66px minmax(0,1fr)}.anime-list-view .item-modern .anime-cover{width:66px}.anime-list-view .item-modern .anime-actions{grid-column:2;flex-direction:row}}
+@media(max-width:420px){.filter-fields{grid-template-columns:1fr}.anime-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.item-modern .anime-info{padding:10px 9px 7px}.item-modern .anime-info h3{font-size:12px}}

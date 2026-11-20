@@ -39,6 +39,16 @@
     let animes = [];
     let libraryFilter = "all";
     let selectedAnime = null;
+    let libraryView = "grid";
+    const librarySort = document.querySelector("#librarySort");
+    const filterStatus = document.querySelector("#filterStatus");
+    const filterGenre = document.querySelector("#filterGenre");
+    const filterFormat = document.querySelector("#filterFormat");
+    const filterRating = document.querySelector("#filterRating");
+    const filterPanel = document.querySelector("#libraryFilterPanel");
+    const filterToggle = document.querySelector("#toggleLibraryFilters");
+    const filterCount = document.querySelector("#activeFilterCount");
+    const listView = document.querySelector("#list");
     let suggestionTimer = null;
     let suggestionRequestId = 0;
     let isSaving = false;
@@ -288,12 +298,11 @@ function openAddScreen() {
             || null;
 
         selectedAnime = {
-            id: anime.id,
-            kitsuId: String(anime.id),
+            id: String(anime.id),
             title,
             poster,
-            genres: Array.isArray(anime._genres) ? anime._genres : [],
-            format: attributes.subtype || null,
+            genres: Array.isArray(anime._aniTrackGenres) ? anime._aniTrackGenres : [],
+            format: attributes.showType || attributes.subtype || "",
             year: attributes.startDate ? attributes.startDate.slice(0, 4) : "",
             episodeCount: Number.isInteger(attributes.episodeCount) && attributes.episodeCount > 0
                 ? attributes.episodeCount
@@ -336,9 +345,8 @@ function openAddScreen() {
             anime.userId === currentUserId
             && anime.id !== editingId
             && (
-                anime.kitsuId
-                    ? String(anime.kitsuId) === String(selectedAnime.kitsuId)
-                    : normalizeTitle(anime.title) === normalizeTitle(selectedAnime.title)
+                (anime.kitsuId && String(anime.kitsuId) === String(selectedAnime.id))
+                || (!anime.kitsuId && normalizeTitle(anime.title) === normalizeTitle(selectedAnime.title))
             )
         );
         submitButton.disabled = duplicate || isSaving;
@@ -359,24 +367,18 @@ function openAddScreen() {
             const result = await response.json();
             if (requestId !== suggestionRequestId) return;
 
-            const includedGenres = new Map(
-                (result.included || [])
-                    .filter(resource => resource.type === "genres")
-                    .map(resource => [String(resource.id), resource.attributes?.name])
-            );
-            (result.data || []).forEach(item => {
-                const genreLinks = item.relationships?.genres?.data || [];
-                item._genres = [...new Set(
-                    genreLinks
-                        .map(link => includedGenres.get(String(link.id)))
-                        .filter(name => typeof name === "string" && name.trim())
-                )];
-            });
-
             animeSuggestions.replaceChildren();
+            const includedGenres = new Map((result.included || [])
+                .filter(item => item.type === "genres")
+                .map(item => [String(item.id), item.attributes?.name || ""]));
             const entries = (result.data || []).filter(item =>
                 item.attributes?.canonicalTitle || Object.values(item.attributes?.titles || {}).some(Boolean)
-            );
+            ).map(item => ({
+                ...item,
+                _aniTrackGenres: (item.relationships?.genres?.data || [])
+                    .map(genre => includedGenres.get(String(genre.id)))
+                    .filter(Boolean)
+            }));
 
             if (!entries.length) {
                 const empty = document.createElement("div");
@@ -454,8 +456,8 @@ function openAddScreen() {
             rating: row.rating,
             kitsuId: row.kitsu_id || null,
             genres: Array.isArray(row.genres) ? row.genres : [],
-            format: row.format || null,
-            posterUrl: row.poster_url || null,
+            format: row.format || "",
+            posterUrl: row.poster_url || "",
             updatedAt: row.updated_at || null
         };
     }
@@ -599,244 +601,149 @@ document.querySelectorAll(".nav-item").forEach(button => {
     }
 
     // Renderizar catálogo
+    function refreshFilterOptions() {
+        if (!filterGenre || !filterFormat) return;
+        const currentGenre = filterGenre.value;
+        const currentFormat = filterFormat.value;
+        const genres = [...new Set(animes.flatMap(a => a.genres || []))].sort((a,b) => a.localeCompare(b, "pt-BR"));
+        const formats = [...new Set(animes.map(a => a.format).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
+        filterGenre.replaceChildren(new Option("Todos os gêneros", ""));
+        genres.forEach(value => filterGenre.add(new Option(value, value)));
+        filterFormat.replaceChildren(new Option("Todos os formatos", ""));
+        formats.forEach(value => filterFormat.add(new Option(value, value)));
+        filterGenre.value = genres.includes(currentGenre) ? currentGenre : "";
+        filterFormat.value = formats.includes(currentFormat) ? currentFormat : "";
+    }
+
+    function updateFilterCount() {
+        const count = [filterStatus?.value, filterGenre?.value, filterFormat?.value, filterRating?.value].filter(Boolean).length;
+        if (filterCount) {
+            filterCount.textContent = String(count);
+            filterCount.hidden = count === 0;
+        }
+    }
+
     function render() {
         list.innerHTML = "";
+        refreshFilterOptions();
 
         let visibleAnimes = animes.filter(anime => {
-            if (libraryFilter === "mine") {
-                return anime.userId === currentUserId;
-            }
-
-            if (libraryFilter === "shared") {
-                return anime.userId !== currentUserId;
-            }
-
-            if (libraryFilter === "favorites") {
-                return anime.userId === currentUserId && anime.favorite;
-            }
-
+            if (libraryFilter === "mine" && anime.userId !== currentUserId) return false;
+            if (libraryFilter === "shared" && anime.userId === currentUserId) return false;
+            if (libraryFilter === "favorites" && !(anime.userId === currentUserId && anime.favorite)) return false;
+            if (filterStatus?.value && anime.status !== filterStatus.value) return false;
+            if (filterGenre?.value && !(anime.genres || []).includes(filterGenre.value)) return false;
+            if (filterFormat?.value && anime.format !== filterFormat.value) return false;
+            if (filterRating?.value && (anime.rating == null || Number(anime.rating) < Number(filterRating.value))) return false;
             return true;
         });
 
+        const progressOf = anime => anime.totalEpisodes > 0
+            ? Math.min(100, Math.max(0, anime.watchedEpisodes / anime.totalEpisodes * 100)) : 0;
+        const sortMode = librarySort?.value || "updated";
+        visibleAnimes.sort((a,b) => {
+            if (sortMode === "title-asc") return a.title.localeCompare(b.title, "pt-BR");
+            if (sortMode === "title-desc") return b.title.localeCompare(a.title, "pt-BR");
+            if (sortMode === "rating-desc") return (Number(b.rating) || -1) - (Number(a.rating) || -1);
+            if (sortMode === "progress-desc") return progressOf(b) - progressOf(a);
+            if (sortMode === "progress-asc") return progressOf(a) - progressOf(b);
+            return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+        });
+
+        updateFilterCount();
         updateStats(visibleAnimes);
 
         if (!visibleAnimes.length) {
             const empty = document.createElement("p");
-            empty.className = "muted";
-
-            empty.textContent = search.value.trim()
-                ? "Nenhum anime encontrado."
-                : libraryFilter === "favorites"
-                    ? "Você ainda não possui favoritos."
-                    : "Esta biblioteca ainda está vazia.";
-
+            empty.className = "muted library-empty";
+            empty.textContent = search.value.trim() || filterStatus?.value || filterGenre?.value || filterFormat?.value || filterRating?.value
+                ? "Nenhum anime corresponde aos filtros selecionados."
+                : libraryFilter === "favorites" ? "Você ainda não possui favoritos." : "Esta biblioteca ainda está vazia.";
             list.append(empty);
             return;
         }
 
+        list.classList.toggle("anime-list-view", libraryView === "list");
         visibleAnimes.forEach(anime => {
             const isOwner = anime.userId === currentUserId;
+            const item = document.createElement("article");
+            item.className = `item item-modern ${isOwner ? "item-own" : "item-shared"}`;
 
-            const item = document.createElement("div");
-            item.className = isOwner
-                ? "item item-own"
-                : "item item-shared";
-
-            // Capa
             const coverContainer = document.createElement("div");
             coverContainer.className = "anime-cover";
-
             const coverImage = document.createElement("img");
-            coverImage.src = fallbackCover;
+            coverImage.src = anime.posterUrl || fallbackCover;
             coverImage.alt = `Capa de ${anime.title}`;
             coverImage.loading = "lazy";
-
-            coverImage.onerror = () => {
-                coverImage.src = fallbackCover;
-            };
-
+            coverImage.onerror = () => { coverImage.src = fallbackCover; };
             coverContainer.append(coverImage);
 
-            // Informações
-            const info = document.createElement("div");
-            info.className = "anime-info";
-
-            const title = document.createElement("h3");
-            title.textContent = anime.title;
-
-            const details = document.createElement("p");
-            details.textContent =
-                `${anime.watchedEpisodes}/${anime.totalEpisodes} episódios`;
-
-            const progress = Math.min(
-                100,
-                Math.max(
-                    0,
-                    (anime.watchedEpisodes / anime.totalEpisodes) * 100
-                )
-            );
-
-            const progressContainer = document.createElement("div");
-            progressContainer.className = "anime-progress";
-
-            const progressBar = document.createElement("div");
-            progressBar.className = "anime-progress-bar";
-            progressBar.style.width = `${progress}%`;
-
-            const progressText = document.createElement("small");
-            progressText.className = "progress-text";
-            progressText.textContent =
-                `${Math.round(progress)}% concluído`;
-
-            progressContainer.append(progressBar);
-
             const statusBadge = document.createElement("span");
-            statusBadge.className =
-                "status-badge status-" +
-                anime.status.toLowerCase().normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "");
-
+            statusBadge.className = "status-badge status-overlay status-" + anime.status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             statusBadge.textContent = anime.status;
-
-            const ownerLabel = document.createElement("small");
-            ownerLabel.className = "library-label";
-            ownerLabel.textContent = isOwner
-                ? "Minha biblioteca"
-                : "Biblioteca compartilhada";
-
-            // Status sobre a capa
-statusBadge.classList.add("status-overlay");
-coverContainer.append(statusBadge);
-
-// Informações abaixo da capa
-info.append(
-    title,
-    details,
-    progressContainer,
-    progressText,
-    ownerLabel
-);
-
-            // Ações
-            const actions = document.createElement("div");
-            actions.className = "anime-actions";
+            coverContainer.append(statusBadge);
 
             if (isOwner) {
-                
-const favoriteButton = document.createElement("button");
-favoriteButton.type = "button";
-favoriteButton.className = "favorite-overlay-button";
+                const favoriteButton = document.createElement("button");
+                favoriteButton.type = "button";
+                favoriteButton.className = `favorite-overlay-button ${anime.favorite ? "is-favorite" : ""}`;
+                favoriteButton.textContent = anime.favorite ? "★" : "☆";
+                favoriteButton.title = anime.favorite ? "Remover dos favoritos" : "Adicionar aos favoritos";
+                favoriteButton.setAttribute("aria-label", favoriteButton.title);
+                favoriteButton.onclick = event => { event.stopPropagation(); toggleFavorite(anime); };
+                coverContainer.append(favoriteButton);
+            }
 
-favoriteButton.textContent = anime.favorite ? "★" : "☆";
-favoriteButton.title = anime.favorite
-    ? "Remover dos favoritos"
-    : "Adicionar aos favoritos";
+            const info = document.createElement("div");
+            info.className = "anime-info";
+            const title = document.createElement("h3");
+            title.textContent = anime.title;
+            const meta = document.createElement("div");
+            meta.className = "anime-card-meta";
+            if (anime.format) {
+                const format = document.createElement("span");
+                format.textContent = anime.format.toUpperCase();
+                meta.append(format);
+            }
+            (anime.genres || []).slice(0, 2).forEach(genreName => {
+                const genre = document.createElement("span");
+                genre.textContent = genreName;
+                meta.append(genre);
+            });
+            const details = document.createElement("p");
+            details.className = "anime-episode-count";
+            details.textContent = `${anime.watchedEpisodes} / ${anime.totalEpisodes} episódios`;
+            const progress = document.createElement("div");
+            progress.className = "anime-progress";
+            const progressBar = document.createElement("div");
+            progressBar.className = "anime-progress-bar";
+            progressBar.style.width = `${progressOf(anime)}%`;
+            progress.append(progressBar);
+            const progressText = document.createElement("small");
+            progressText.className = "progress-text";
+            progressText.textContent = `${Math.round(progressOf(anime))}% concluído`;
+            const ratingLabel = document.createElement("span");
+            ratingLabel.className = "anime-card-rating";
+            ratingLabel.textContent = anime.rating == null ? "Sem avaliação" : `★ ${anime.rating}/10`;
+            info.append(title, meta, details, progress, progressText, ratingLabel);
 
-favoriteButton.setAttribute("aria-label", favoriteButton.title);
-favoriteButton.classList.toggle("is-favorite", anime.favorite);
-
-favoriteButton.onclick = (event) => {
-    event.stopPropagation();
-    toggleFavorite(anime);
-};
-
-// Posicionamento garantido sobre a capa
-coverContainer.style.setProperty("position", "relative", "important");
-
-const favoriteStyles = {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    left: "auto",
-    bottom: "auto",
-    width: "38px",
-    height: "38px",
-    minWidth: "38px",
-    minHeight: "38px",
-    maxWidth: "38px",
-    padding: "0",
-    margin: "0",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: "50%",
-    border: "1px solid rgba(220,205,255,0.4)",
-    background: "rgba(20,17,38,0.88)",
-    color: anime.favorite ? "#ffb8e4" : "#eee5ff",
-    fontSize: "23px",
-    lineHeight: "1",
-    zIndex: "20",
-    cursor: "pointer",
-    boxShadow: anime.favorite
-        ? "0 0 15px rgba(220,150,255,0.5)"
-        : "0 3px 10px rgba(0,0,0,0.3)"
-};
-
-Object.entries(favoriteStyles).forEach(([property, value]) => {
-    favoriteButton.style.setProperty(
-        property.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`),
-        value,
-        "important"
-    );
-});
-
-coverContainer.append(favoriteButton);
-
-
-                
-const ratingWrapper = document.createElement("div");
-ratingWrapper.className = "rating-wrapper";
-
-const ratingIcon = document.createElement("span");
-ratingIcon.className = "rating-icon";
-ratingIcon.textContent = "★";
-
-const ratingSelect = document.createElement("select");
-ratingSelect.className = "rating-select";
-ratingSelect.setAttribute(
-    "aria-label",
-    `Avaliação de ${anime.title}`
-);
-
-const noRating = document.createElement("option");
-noRating.value = "";
-noRating.textContent = "Sem nota";
-ratingSelect.append(noRating);
-
-for (let i = 0; i <= 10; i++) {
-    const option = document.createElement("option");
-    option.value = String(i);
-    option.textContent = `${i}/10`;
-    ratingSelect.append(option);
-}
-
-ratingSelect.value = anime.rating == null
-    ? ""
-    : String(anime.rating);
-
-ratingSelect.onchange = () =>
-    updateRating(anime, ratingSelect.value);
-
-ratingWrapper.append(ratingIcon, ratingSelect);
-
-
+            const actions = document.createElement("div");
+            actions.className = "anime-actions";
+            if (isOwner) {
+                const ratingSelect = document.createElement("select");
+                ratingSelect.className = "rating-select";
+                ratingSelect.setAttribute("aria-label", `Avaliação de ${anime.title}`);
+                ratingSelect.add(new Option("Avaliar", ""));
+                for (let i=0; i<=10; i++) ratingSelect.add(new Option(`${i}/10`, String(i)));
+                ratingSelect.value = anime.rating == null ? "" : String(anime.rating);
+                ratingSelect.onchange = () => updateRating(anime, ratingSelect.value);
                 const editButton = document.createElement("button");
-                editButton.type = "button";
-                editButton.textContent = "Editar";
+                editButton.type = "button"; editButton.textContent = "Editar";
                 editButton.onclick = () => startEditing(anime);
-
                 const deleteButton = document.createElement("button");
-                deleteButton.type = "button";
-                deleteButton.textContent = "Excluir";
+                deleteButton.type = "button"; deleteButton.textContent = "Excluir";
                 deleteButton.onclick = () => deleteAnime(anime);
-
-                actions.append(
-                    favoriteButton,
-                    ratingWrapper,
-                    editButton,
-                    deleteButton
-                );
-
+                actions.append(ratingSelect, editButton, deleteButton);
             } else {
                 const sharedLabel = document.createElement("small");
                 sharedLabel.textContent = "Somente visualização";
@@ -845,10 +752,33 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
             item.append(coverContainer, info, actions);
             list.append(item);
-
-            loadCover(anime.title, coverImage);
+            if (!anime.posterUrl) loadCover(anime.title, coverImage);
         });
     }
+
+    filterToggle?.addEventListener("click", () => {
+        const isOpen = !filterPanel.hidden;
+        filterPanel.hidden = isOpen;
+        filterToggle.setAttribute("aria-expanded", String(!isOpen));
+    });
+    [filterStatus, filterGenre, filterFormat, filterRating, librarySort].forEach(control => {
+        control?.addEventListener("change", render);
+    });
+    document.querySelector("#clearLibraryFilters")?.addEventListener("click", () => {
+        [filterStatus, filterGenre, filterFormat, filterRating].forEach(control => { if (control) control.value = ""; });
+        render();
+    });
+    document.querySelectorAll("[data-library-view]").forEach(button => {
+        button.addEventListener("click", () => {
+            libraryView = button.dataset.libraryView;
+            document.querySelectorAll("[data-library-view]").forEach(option => {
+                const active = option === button;
+                option.classList.toggle("is-active", active);
+                option.setAttribute("aria-pressed", String(active));
+            });
+            render();
+        });
+    });
 
     // Verificar propriedade
     function canEdit(anime) {
@@ -983,16 +913,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
         form.elements.title.value = anime.title;
         animeSearchInput.value = anime.title;
-        selectedAnime = {
-            title: anime.title,
-            id: anime.kitsuId,
-            kitsuId: anime.kitsuId,
-            poster: anime.posterUrl,
-            genres: anime.genres || [],
-            format: anime.format || null,
-            year: "",
-            episodeCount: anime.totalEpisodes
-        };
+        selectedAnime = { title: anime.title, id: null, poster: null, year: "", episodeCount: anime.totalEpisodes };
         selectedAnimePreview.hidden = true;
         submitButton.disabled = false;
         displayTotalEpisodes(anime.totalEpisodes);
@@ -1050,11 +971,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         const duplicate = animes.some(anime =>
             anime.userId === currentUserId
             && anime.id !== editingId
-            && (
-                anime.kitsuId
-                    ? String(anime.kitsuId) === String(selectedAnime.kitsuId)
-                    : normalizeTitle(anime.title) === normalizeTitle(title)
-            )
+            && normalizeTitle(anime.title) === normalizeTitle(title)
         );
         if (duplicate) {
             showMessage("Esta obra já está na sua biblioteca.", true);
@@ -1097,10 +1014,12 @@ ratingWrapper.append(ratingIcon, ratingSelect);
                         total_episodes: totalEpisodes,
                         watched_episodes: watchedEpisodes,
                         status,
-                        kitsu_id: selectedAnime.kitsuId || null,
-                        genres: selectedAnime.genres || [],
-                        format: selectedAnime.format || null,
-                        poster_url: selectedAnime.poster || null
+                        ...(selectedAnime ? {
+                            kitsu_id: String(selectedAnime.id),
+                            genres: selectedAnime.genres || [],
+                            format: selectedAnime.format || null,
+                            poster_url: selectedAnime.poster || null
+                        } : {})
                     })
                     .eq("id", editingId)
                     .eq("user_id", currentUserId);
@@ -1118,7 +1037,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
                         status,
                         favorite: false,
                         rating: null,
-                        kitsu_id: selectedAnime.kitsuId || null,
+                        kitsu_id: String(selectedAnime.id),
                         genres: selectedAnime.genres || [],
                         format: selectedAnime.format || null,
                         poster_url: selectedAnime.poster || null
@@ -1141,14 +1060,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
         } catch (error) {
             console.error(error);
-            const duplicateByKitsu = error.code === "23505"
-                && String(error.message || "").includes("anime_user_kitsu_unique_idx");
-            showMessage(
-                duplicateByKitsu
-                    ? "Esta obra do Kitsu já está na sua biblioteca."
-                    : "Não foi possível salvar: " + error.message,
-                true
-            );
+            showMessage("Não foi possível salvar: " + error.message, true);
 
         } finally {
             isSaving = false;

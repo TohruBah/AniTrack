@@ -281,7 +281,50 @@
                             aria-label="Pesquisar animes"
                         >
                     </div>
-
+                    <div class="library-controls">
+                        <button type="button" id="toggleLibraryFilters" class="library-control-button" aria-expanded="false" aria-controls="libraryFilterPanel">
+                            <span aria-hidden="true">☷</span> Filtros <span id="activeFilterCount" class="filter-count" hidden>0</span>
+                        </button>
+                        <label class="library-sort-label" for="librarySort">Ordenar</label>
+                        <select id="librarySort" class="library-sort">
+                            <option value="updated">Atualizados recentemente</option>
+                            <option value="title-asc">Nome: A–Z</option>
+                            <option value="title-desc">Nome: Z–A</option>
+                            <option value="rating-desc">Melhor avaliação</option>
+                            <option value="progress-desc">Maior progresso</option>
+                            <option value="progress-asc">Menor progresso</option>
+                        </select>
+                        <div class="view-toggle" role="group" aria-label="Modo de visualização">
+                            <button type="button" class="view-toggle-button is-active" data-library-view="grid" aria-pressed="true" title="Visualização em grade">▦</button>
+                            <button type="button" class="view-toggle-button" data-library-view="list" aria-pressed="false" title="Visualização em lista">☰</button>
+                        </div>
+                    </div>
+                    <section id="libraryFilterPanel" class="library-filter-panel" hidden aria-label="Filtros avançados">
+                        <div class="filter-panel-heading">
+                            <div><strong>Filtros avançados</strong><span>Refine sua coleção</span></div>
+                            <button type="button" id="clearLibraryFilters" class="filter-clear-button">Limpar filtros</button>
+                        </div>
+                        <div class="filter-fields">
+                            <label>Status
+                                <select id="filterStatus">
+                                    <option value="">Todos os status</option>
+                                    <option>Planejado</option><option>Assistindo</option><option>Pausado</option><option>Concluído</option>
+                                </select>
+                            </label>
+                            <label>Gênero
+                                <select id="filterGenre"><option value="">Todos os gêneros</option></select>
+                            </label>
+                            <label>Formato
+                                <select id="filterFormat"><option value="">Todos os formatos</option></select>
+                            </label>
+                            <label>Nota mínima
+                                <select id="filterRating">
+                                    <option value="">Qualquer nota</option>
+                                    <option value="5">5+</option><option value="7">7+</option><option value="8">8+</option><option value="9">9+</option>
+                                </select>
+                            </label>
+                        </div>
+                    </section>
                 </div>
 
                 <!-- CATÁLOGO E ESTATÍSTICAS -->
