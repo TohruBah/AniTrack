@@ -289,8 +289,11 @@ function openAddScreen() {
 
         selectedAnime = {
             id: anime.id,
+            kitsuId: String(anime.id),
             title,
             poster,
+            genres: Array.isArray(anime._genres) ? anime._genres : [],
+            format: attributes.subtype || null,
             year: attributes.startDate ? attributes.startDate.slice(0, 4) : "",
             episodeCount: Number.isInteger(attributes.episodeCount) && attributes.episodeCount > 0
                 ? attributes.episodeCount
@@ -332,7 +335,11 @@ function openAddScreen() {
         const duplicate = animes.some(anime =>
             anime.userId === currentUserId
             && anime.id !== editingId
-            && normalizeTitle(anime.title) === normalizeTitle(selectedAnime.title)
+            && (
+                anime.kitsuId
+                    ? String(anime.kitsuId) === String(selectedAnime.kitsuId)
+                    : normalizeTitle(anime.title) === normalizeTitle(selectedAnime.title)
+            )
         );
         submitButton.disabled = duplicate || isSaving;
         if (duplicate) {
@@ -344,13 +351,27 @@ function openAddScreen() {
 
     async function searchAnimeSuggestions(term, requestId) {
         try {
-            const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(term)}&page[limit]=8&sort=popularityRank`;
+            const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(term)}&page[limit]=8&sort=popularityRank&include=genres`;
             const response = await fetch(url, {
                 headers: { Accept: "application/vnd.api+json" }
             });
             if (!response.ok) throw new Error(`Kitsu respondeu ${response.status}`);
             const result = await response.json();
             if (requestId !== suggestionRequestId) return;
+
+            const includedGenres = new Map(
+                (result.included || [])
+                    .filter(resource => resource.type === "genres")
+                    .map(resource => [String(resource.id), resource.attributes?.name])
+            );
+            (result.data || []).forEach(item => {
+                const genreLinks = item.relationships?.genres?.data || [];
+                item._genres = [...new Set(
+                    genreLinks
+                        .map(link => includedGenres.get(String(link.id)))
+                        .filter(name => typeof name === "string" && name.trim())
+                )];
+            });
 
             animeSuggestions.replaceChildren();
             const entries = (result.data || []).filter(item =>
@@ -430,7 +451,12 @@ function openAddScreen() {
             watchedEpisodes: row.watched_episodes,
             status: row.status,
             favorite: row.favorite,
-            rating: row.rating
+            rating: row.rating,
+            kitsuId: row.kitsu_id || null,
+            genres: Array.isArray(row.genres) ? row.genres : [],
+            format: row.format || null,
+            posterUrl: row.poster_url || null,
+            updatedAt: row.updated_at || null
         };
     }
 
@@ -957,7 +983,16 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
         form.elements.title.value = anime.title;
         animeSearchInput.value = anime.title;
-        selectedAnime = { title: anime.title, id: null, poster: null, year: "", episodeCount: anime.totalEpisodes };
+        selectedAnime = {
+            title: anime.title,
+            id: anime.kitsuId,
+            kitsuId: anime.kitsuId,
+            poster: anime.posterUrl,
+            genres: anime.genres || [],
+            format: anime.format || null,
+            year: "",
+            episodeCount: anime.totalEpisodes
+        };
         selectedAnimePreview.hidden = true;
         submitButton.disabled = false;
         displayTotalEpisodes(anime.totalEpisodes);
@@ -1015,7 +1050,11 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         const duplicate = animes.some(anime =>
             anime.userId === currentUserId
             && anime.id !== editingId
-            && normalizeTitle(anime.title) === normalizeTitle(title)
+            && (
+                anime.kitsuId
+                    ? String(anime.kitsuId) === String(selectedAnime.kitsuId)
+                    : normalizeTitle(anime.title) === normalizeTitle(title)
+            )
         );
         if (duplicate) {
             showMessage("Esta obra já está na sua biblioteca.", true);
@@ -1057,7 +1096,11 @@ ratingWrapper.append(ratingIcon, ratingSelect);
                         title,
                         total_episodes: totalEpisodes,
                         watched_episodes: watchedEpisodes,
-                        status
+                        status,
+                        kitsu_id: selectedAnime.kitsuId || null,
+                        genres: selectedAnime.genres || [],
+                        format: selectedAnime.format || null,
+                        poster_url: selectedAnime.poster || null
                     })
                     .eq("id", editingId)
                     .eq("user_id", currentUserId);
@@ -1074,7 +1117,11 @@ ratingWrapper.append(ratingIcon, ratingSelect);
                         watched_episodes: watchedEpisodes,
                         status,
                         favorite: false,
-                        rating: null
+                        rating: null,
+                        kitsu_id: selectedAnime.kitsuId || null,
+                        genres: selectedAnime.genres || [],
+                        format: selectedAnime.format || null,
+                        poster_url: selectedAnime.poster || null
                     });
 
                 error = insertError;
@@ -1094,7 +1141,14 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível salvar: " + error.message, true);
+            const duplicateByKitsu = error.code === "23505"
+                && String(error.message || "").includes("anime_user_kitsu_unique_idx");
+            showMessage(
+                duplicateByKitsu
+                    ? "Esta obra do Kitsu já está na sua biblioteca."
+                    : "Não foi possível salvar: " + error.message,
+                true
+            );
 
         } finally {
             isSaving = false;
