@@ -76,6 +76,57 @@
         profileAvatarPreview.src = currentAvatarUrl || DEFAULT_AVATAR;
     }
 
+    // Garantir que todo usuário autenticado tenha uma linha em public.profiles.
+    // O trigger SQL cria o registro no signup; esta rotina cobre contas antigas
+    // e usuários cujo registro ainda não exista.
+    function buildDefaultUsername(user) {
+        const emailName = (user.email || "usuario").split("@")[0];
+        const base = emailName.replace(/[^A-Za-z0-9_]/g, "").slice(0, 13) || "usuario";
+        const suffix = String(user.id || "").replace(/-/g, "").slice(0, 6);
+        return `${base}_${suffix}`.slice(0, 20);
+    }
+
+    async function ensureProfile(user) {
+        if (!user?.id) return null;
+
+        const { data: existing, error: selectError } = await supabaseClient
+            .from("profiles")
+            .select("id, username, avatar_url")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (selectError) throw selectError;
+        if (existing) return existing;
+
+        const username = buildDefaultUsername(user);
+        const { error: insertError } = await supabaseClient
+            .from("profiles")
+            .insert({
+                id: user.id,
+                username,
+                avatar_url: null
+            });
+
+        // Se duas inicializações tentarem criar ao mesmo tempo, a segunda
+        // pode receber conflito; nesse caso, verificamos se a primeira venceu.
+        if (insertError && insertError.code !== "23505") throw insertError;
+
+        const { data: created, error: verifyError } = await supabaseClient
+            .from("profiles")
+            .select("id, username, avatar_url")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (verifyError) throw verifyError;
+        if (!created) {
+            throw new Error(
+                "Não foi possível criar seu perfil. Confira a política INSERT da tabela profiles no Supabase."
+            );
+        }
+
+        return created;
+    }
+
     // Carregar perfil completo
     async function loadProfile(user) {
         const requestId = ++profileRequest;
@@ -84,26 +135,17 @@
 
         currentUser.textContent = "Carregando perfil...";
 
-        const { data, error } = await supabaseClient
-            .from("profiles")
-            .select("username, avatar_url")
-            .eq("id", user.id)
-            .maybeSingle();
+        let data;
+        try {
+            data = await ensureProfile(user);
+        } catch (error) {
+            if (requestId !== profileRequest) return null;
+            console.error("Erro ao garantir/criar perfil:", error);
+            currentUser.textContent = "Perfil não disponível";
+            return null;
+        }
 
         if (requestId !== profileRequest) return null;
-
-        if (error) {
-            console.error("Erro ao carregar perfil:", error);
-            currentUser.textContent = "Conta conectada";
-            return null;
-        }
-
-        if (!data) {
-            currentUser.textContent = "Perfil não cadastrado";
-            currentAvatarUrl = null;
-            updateSidebarAvatar(null);
-            return null;
-        }
 
         currentUser.textContent = `@${data.username}`;
         currentAvatarUrl = data.avatar_url || null;
