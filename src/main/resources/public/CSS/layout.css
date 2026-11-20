@@ -2800,3 +2800,48 @@ body {
 .library-empty{grid-column:1/-1;padding:34px;text-align:center;border:1px dashed var(--border-color,rgba(190,170,240,.25));border-radius:16px}
 @media(max-width:760px){.filter-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.library-controls{width:100%}.library-sort{flex:1;min-width:140px}.anime-list{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}.anime-list-view .item-modern{grid-template-columns:66px minmax(0,1fr)}.anime-list-view .item-modern .anime-cover{width:66px}.anime-list-view .item-modern .anime-actions{grid-column:2;flex-direction:row}}
 @media(max-width:420px){.filter-fields{grid-template-columns:1fr}.anime-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.item-modern .anime-info{padding:10px 9px 7px}.item-modern .anime-info h3{font-size:12px}}
+
+/* Fix: the legacy theme uses !important on .anime-list grid rules.
+   These selectors intentionally outrank those rules in list mode. */
+#list.anime-list.anime-list-view {
+    grid-template-columns: 1fr !important;
+    justify-content: stretch !important;
+    gap: 10px !important;
+}
+#list.anime-list.anime-list-view > .item-modern {
+    display: grid !important;
+    grid-template-columns: 82px minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding: 10px !important;
+    width: 100% !important;
+    max-width: none !important;
+}
+#list.anime-list.anime-list-view > .item-modern > .anime-cover {
+    width: 82px !important;
+    aspect-ratio: 2 / 3 !important;
+    height: auto !important;
+    border-radius: 9px !important;
+}
+#list.anime-list.anime-list-view > .item-modern > .anime-info {
+    min-width: 0 !important;
+    padding: 0 !important;
+}
+#list.anime-list.anime-list-view > .item-modern > .anime-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 100px !important;
+    padding: 0 !important;
+}
+@media (max-width: 760px) {
+    #list.anime-list.anime-list-view > .item-modern {
+        grid-template-columns: 66px minmax(0, 1fr) !important;
+    }
+    #list.anime-list.anime-list-view > .item-modern > .anime-cover {
+        width: 66px !important;
+    }
+    #list.anime-list.anime-list-view > .item-modern > .anime-actions {
+        grid-column: 2 !important;
+        flex-direction: row !important;
+    }
+}
