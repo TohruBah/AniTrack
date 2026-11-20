@@ -398,7 +398,7 @@
                                     name="totalEpisodes"
                                     type="number"
                                     min="1"
-                                    value="12"
+                                    placeholder="Preenchido pelo Kitsu"
                                     required
                                 >
                             </label>
@@ -418,12 +418,24 @@
                             <label class="field field-full">
                                 Status
 
-                                <select name="status" required>
-                                    <option>Planejado</option>
-                                    <option>Assistindo</option>
-                                    <option>Pausado</option>
-                                    <option>Concluído</option>
+                                <select name="status" class="status-native-select" required tabindex="-1" aria-hidden="true">
+                                    <option value="Planejado">Planejado</option>
+                                    <option value="Assistindo">Assistindo</option>
+                                    <option value="Pausado">Pausado</option>
+                                    <option value="Concluído">Concluído</option>
                                 </select>
+                                <div class="status-picker" data-status-picker>
+                                    <button type="button" class="status-picker-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="status-picker-current"><span class="status-dot"></span><span class="status-picker-label">Planejado</span></span>
+                                        <span class="status-picker-chevron" aria-hidden="true">⌄</span>
+                                    </button>
+                                    <div class="status-picker-menu" role="listbox" aria-label="Status do anime" hidden>
+                                        <button type="button" class="status-option" role="option" data-value="Planejado" aria-selected="true"><span class="status-dot"></span>Planejado</button>
+                                        <button type="button" class="status-option" role="option" data-value="Assistindo" aria-selected="false"><span class="status-dot"></span>Assistindo</button>
+                                        <button type="button" class="status-option" role="option" data-value="Pausado" aria-selected="false"><span class="status-dot"></span>Pausado</button>
+                                        <button type="button" class="status-option" role="option" data-value="Concluído" aria-selected="false"><span class="status-dot"></span>Concluído</button>
+                                    </div>
+                                </div>
                             </label>
 
                         </div>

@@ -2674,3 +2674,53 @@ body {
         max-width: 100% !important;
     }
 }
+
+/* ==========================================
+   ANITRACK — SELETOR PERSONALIZADO DE STATUS
+========================================== */
+#form .status-native-select { display: none !important; }
+#form .status-picker { position: relative; width: 100%; z-index: 5; }
+#form .status-picker-trigger {
+    width: 100%; min-height: 48px; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; padding: 0 15px;
+    border: 1px solid var(--theme-border, rgba(169,139,250,.35));
+    border-radius: 13px; color: var(--theme-text, #f4efff);
+    background: linear-gradient(135deg, var(--theme-control, rgba(18,20,42,.94)), var(--theme-panel, rgba(34,28,57,.96)));
+    font: 700 13px 'Nunito', sans-serif; text-align: left; cursor: pointer;
+    box-shadow: 0 5px 18px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.05);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+#form .status-picker-trigger:hover,
+#form .status-picker-trigger[aria-expanded="true"] {
+    border-color: var(--theme-accent, #a98bfa);
+    box-shadow: 0 0 0 3px var(--theme-glow, rgba(169,139,250,.14)), 0 8px 22px rgba(0,0,0,.18);
+}
+#form .status-picker-current { display: inline-flex; align-items: center; gap: 10px; }
+#form .status-picker-chevron { color: var(--theme-accent, #bca5ff); font-size: 20px; transition: transform .2s ease; }
+#form .status-picker-trigger[aria-expanded="true"] .status-picker-chevron { transform: rotate(180deg); }
+#form .status-picker-menu {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    display: grid; gap: 4px; padding: 7px; border-radius: 14px;
+    border: 1px solid var(--theme-border, rgba(169,139,250,.35));
+    background: var(--theme-sidebar, #191a32); color: var(--theme-text, #f4efff);
+    box-shadow: 0 16px 38px rgba(0,0,0,.34), 0 0 22px var(--theme-glow, rgba(169,139,250,.12));
+    backdrop-filter: blur(18px); animation: statusMenuIn .16s ease-out;
+}
+#form .status-picker-menu[hidden] { display: none !important; }
+#form .status-option {
+    min-height: 41px; display: flex; align-items: center; gap: 10px;
+    padding: 0 11px; border: 1px solid transparent; border-radius: 9px;
+    color: var(--theme-text, #f4efff); background: transparent;
+    font: 600 13px 'Nunito', sans-serif; text-align: left; cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+#form .status-option:hover { background: var(--theme-glow, rgba(169,139,250,.13)); border-color: var(--theme-border, rgba(169,139,250,.25)); transform: translateX(2px); }
+#form .status-option.is-selected { background: var(--theme-glow, rgba(169,139,250,.16)); border-color: var(--theme-border, rgba(169,139,250,.32)); }
+#form .status-dot { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: #a98bfa; box-shadow: 0 0 9px currentColor; }
+#form .status-picker[data-status="assistindo"] .status-dot,
+#form .status-option[data-value="Assistindo"] .status-dot { background: #65c7e8; }
+#form .status-picker[data-status="pausado"] .status-dot,
+#form .status-option[data-value="Pausado"] .status-dot { background: #e8bd70; }
+#form .status-picker[data-status="concluido"] .status-dot,
+#form .status-option[data-value="Concluído"] .status-dot { background: #70c9a2; }
+@keyframes statusMenuIn { from { opacity: 0; transform: translateY(-5px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }

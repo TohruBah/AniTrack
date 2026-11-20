@@ -56,6 +56,52 @@
     // Botões do formulário
     const submitButton = form.querySelector('button[type="submit"]');
 
+    // Seletor visual de status: mantém o <select> original como fonte do valor enviado.
+    const statusSelect = form.elements.status;
+    const statusPicker = form.querySelector("[data-status-picker]");
+    const statusTrigger = statusPicker?.querySelector(".status-picker-trigger");
+    const statusMenu = statusPicker?.querySelector(".status-picker-menu");
+    const statusLabel = statusPicker?.querySelector(".status-picker-label");
+
+    function syncStatusPicker() {
+        if (!statusSelect || !statusPicker) return;
+        const current = statusSelect.value || "Planejado";
+        statusLabel.textContent = current;
+        statusPicker.dataset.status = current.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        statusPicker.querySelectorAll(".status-option").forEach(option => {
+            const selected = option.dataset.value === current;
+            option.setAttribute("aria-selected", String(selected));
+            option.classList.toggle("is-selected", selected);
+        });
+    }
+
+    function closeStatusPicker() {
+        if (!statusMenu || !statusTrigger) return;
+        statusMenu.hidden = true;
+        statusTrigger.setAttribute("aria-expanded", "false");
+    }
+
+    if (statusPicker && statusSelect && statusTrigger && statusMenu) {
+        statusTrigger.addEventListener("click", () => {
+            const opening = statusMenu.hidden;
+            statusMenu.hidden = !opening;
+            statusTrigger.setAttribute("aria-expanded", String(opening));
+        });
+        statusMenu.querySelectorAll(".status-option").forEach(option => {
+            option.addEventListener("click", () => {
+                statusSelect.value = option.dataset.value;
+                statusSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                syncStatusPicker();
+                closeStatusPicker();
+            });
+        });
+        document.addEventListener("click", event => {
+            if (!statusPicker.contains(event.target)) closeStatusPicker();
+        });
+        statusSelect.addEventListener("change", syncStatusPicker);
+        syncStatusPicker();
+    }
+
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
     cancelButton.className = "secondary-button";
@@ -105,6 +151,7 @@ function openAddScreen() {
     addAnimeButton.addEventListener("click", () => {
         cancelEditing();
         form.reset();
+        syncStatusPicker();
         animeSearchInput.value = "";
         clearAnimeSelection();
         closeAnimeSuggestions();
@@ -228,8 +275,17 @@ function openAddScreen() {
             id: anime.id,
             title,
             poster,
-            year: attributes.startDate ? attributes.startDate.slice(0, 4) : ""
+            year: attributes.startDate ? attributes.startDate.slice(0, 4) : "",
+            episodeCount: Number.isInteger(attributes.episodeCount) && attributes.episodeCount > 0
+                ? attributes.episodeCount
+                : null
         };
+        if (selectedAnime.episodeCount) {
+            form.elements.totalEpisodes.value = selectedAnime.episodeCount;
+            form.elements.totalEpisodes.dispatchEvent(new Event("input", { bubbles: true }));
+        } else {
+            form.elements.totalEpisodes.value = "";
+        }
         animeSearchInput.value = title;
         form.elements.title.value = title;
         closeAnimeSuggestions();
@@ -896,6 +952,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         form.elements.totalEpisodes.value = anime.totalEpisodes;
         form.elements.watchedEpisodes.value = anime.watchedEpisodes;
         form.elements.status.value = anime.status;
+        syncStatusPicker();
 
         submitButton.textContent = "Salvar alterações";
         cancelButton.hidden = false;
@@ -909,6 +966,7 @@ ratingWrapper.append(ratingIcon, ratingSelect);
     function cancelEditing() {
         editingId = null;
         form.reset();
+        syncStatusPicker();
         animeSearchInput.value = "";
         clearAnimeSelection();
         closeAnimeSuggestions();
