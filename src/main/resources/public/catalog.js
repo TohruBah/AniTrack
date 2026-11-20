@@ -808,11 +808,61 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         }
     }
 
+    // Confirmação visual de exclusão (substitui o confirm nativo do navegador)
+    function confirmAnimeDeletion(title) {
+        const modal = document.querySelector("#deleteConfirmModal");
+        const dialog = modal?.querySelector(".delete-confirm-dialog");
+        const animeName = document.querySelector("#deleteConfirmAnime");
+        const cancelButton = document.querySelector("#cancelDeleteAnime");
+        const confirmButton = document.querySelector("#confirmDeleteAnime");
+        if (!modal || !dialog || !animeName || !cancelButton || !confirmButton) {
+            console.error("AniTrack: modal de confirmação não encontrado.");
+            return Promise.resolve(false);
+        }
+
+        animeName.textContent = title;
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        confirmButton.focus();
+
+        return new Promise(resolve => {
+            let settled = false;
+            const finish = accepted => {
+                if (settled) return;
+                settled = true;
+                modal.hidden = true;
+                modal.setAttribute("aria-hidden", "true");
+                document.body.style.overflow = "";
+                cancelButton.removeEventListener("click", cancel);
+                confirmButton.removeEventListener("click", accept);
+                modal.removeEventListener("click", backdropCancel);
+                document.removeEventListener("keydown", onKeyDown);
+                resolve(accepted);
+            };
+            const cancel = () => finish(false);
+            const accept = () => finish(true);
+            const backdropCancel = event => { if (event.target === modal) cancel(); };
+            const onKeyDown = event => {
+                if (event.key === "Escape") { event.preventDefault(); cancel(); }
+                if (event.key === "Tab") {
+                    event.preventDefault();
+                    (document.activeElement === confirmButton ? cancelButton : confirmButton).focus();
+                }
+            };
+            cancelButton.addEventListener("click", cancel);
+            confirmButton.addEventListener("click", accept);
+            modal.addEventListener("click", backdropCancel);
+            document.addEventListener("keydown", onKeyDown);
+        });
+    }
+
     // Excluir anime
     async function deleteAnime(anime) {
         if (!canEdit(anime)) return;
 
-        if (!confirm(`Deseja excluir "${anime.title}"?`)) return;
+        const confirmed = await confirmAnimeDeletion(anime.title);
+        if (!confirmed) return;
 
         try {
             const { error } = await supabase

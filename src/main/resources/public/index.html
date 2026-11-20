@@ -545,6 +545,21 @@
 
     </div>
 
+    <!-- CONFIRMAÇÃO PERSONALIZADA DE EXCLUSÃO -->
+    <div id="deleteConfirmModal" class="delete-confirm-overlay" hidden aria-hidden="true">
+        <section class="delete-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDescription" tabindex="-1">
+            <div class="delete-confirm-icon" aria-hidden="true">⌫</div>
+            <span class="delete-confirm-eyebrow">AÇÃO IRREVERSÍVEL</span>
+            <h2 id="deleteConfirmTitle">Excluir anime?</h2>
+            <p id="deleteConfirmDescription">Tem certeza de que deseja remover este anime da sua biblioteca?</p>
+            <div class="delete-confirm-anime" id="deleteConfirmAnime"></div>
+            <div class="delete-confirm-actions">
+                <button type="button" class="delete-cancel-button" id="cancelDeleteAnime">Cancelar</button>
+                <button type="button" class="delete-accept-button" id="confirmDeleteAnime">Excluir anime</button>
+            </div>
+        </section>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/supabase-config.js"></script>
