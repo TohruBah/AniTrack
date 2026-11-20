@@ -186,6 +186,11 @@
                         Estatísticas
                     </button>
 
+                    <button type="button" class="nav-item" id="profileNavButton">
+                        <span class="nav-icon">◎</span>
+                        Meu perfil
+                    </button>
+
                 </nav>
             </div>
 
@@ -354,7 +359,7 @@
                     <div>
                         <span class="eyebrow">ANÁLISE DA COLEÇÃO</span>
                         <h1>Estatísticas</h1>
-                        <p>Acompanhe seu progresso e suas conquistas no AniTrack.</p>
+                        <p>Acompanhe seu progresso e os resultados da sua coleção.</p>
                     </div>
                 </header>
 
@@ -376,6 +381,50 @@
             </section>
 
 
+            </section>
+
+            <!-- PERFIL IMERSIVO -->
+            <section id="profileView" class="page-view profile-page" hidden>
+                <header class="page-header profile-page-heading">
+                    <div>
+                        <span class="eyebrow">IDENTIDADE ANITRACK</span>
+                        <h1>Meu perfil</h1>
+                        <p>Seu espaço, sua coleção e suas histórias favoritas.</p>
+                    </div>
+                    <button type="button" id="editImmersiveProfile" class="primary-button">✧ Personalizar perfil</button>
+                </header>
+
+                <section class="immersive-profile-card">
+                    <div id="profileBanner" class="immersive-profile-banner">
+                        <span class="profile-banner-caption">ANITRACK MEMBER</span>
+                    </div>
+                    <div class="immersive-profile-identity">
+                        <img id="immersiveAvatar" src="/favicon.ico" alt="Avatar do perfil">
+                        <div class="immersive-profile-name">
+                            <span class="eyebrow">PERFIL PÚBLICO</span>
+                            <h2 id="immersiveUsername">Carregando...</h2>
+                            <p>Uma coleção de histórias para acompanhar.</p>
+                        </div>
+                        <span class="profile-public-pill">✦ Público</span>
+                    </div>
+                </section>
+
+                <section class="profile-stat-grid" id="profileStats" aria-live="polite">
+                    <article class="profile-stat-card"><span>ANIMES</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>CONCLUÍDOS</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>EPISÓDIOS VISTOS</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>MÉDIA DAS NOTAS</span><strong>—</strong></article>
+                </section>
+
+                <section class="profile-featured-section">
+                    <div class="section-heading">
+                        <div><span class="eyebrow">SELEÇÃO PESSOAL</span><h2>Animes em destaque</h2></div>
+                        <span class="section-symbol">✧</span>
+                    </div>
+                    <div id="profileFeaturedAnime" class="profile-featured-grid">
+                        <p class="profile-empty-state">Escolha até três animes para destacar no seu perfil.</p>
+                    </div>
+                </section>
             </section>
 
             <!-- TELA DE CADASTRO -->
@@ -499,6 +548,30 @@
             </section>
 
 
+<!-- PERSONALIZAÇÃO DO PERFIL IMERSIVO -->
+<div id="immersiveProfileModal" class="profile-modal" hidden>
+  <div class="profile-modal-content immersive-editor-content">
+    <div class="section-heading">
+      <div><span class="eyebrow">PERSONALIZAÇÃO</span><h2>Meu perfil</h2></div>
+      <button type="button" id="closeImmersiveProfile" class="close-profile-button" aria-label="Fechar">×</button>
+    </div>
+    <div class="profile-banner-editor">
+      <div id="bannerPreview" class="banner-preview"><span>Prévia do banner</span></div>
+      <label for="profileBannerInput" class="avatar-upload-button">✧ Escolher banner</label>
+      <input type="file" id="profileBannerInput" accept="image/png,image/jpeg,image/webp" hidden>
+      <button type="button" id="removeProfileBanner" class="remove-avatar-button">Remover banner</button>
+    </div>
+    <div class="profile-feature-picker">
+      <div><strong>Animes em destaque</strong><p>Selecione até três animes da sua coleção.</p></div>
+      <div id="featuredAnimeChoices" class="featured-anime-choices"><p>Carregando sua coleção...</p></div>
+    </div>
+    <div class="form-footer">
+      <button type="button" id="saveImmersiveProfile" class="primary-button">Salvar personalização</button>
+      <p id="immersiveProfileMessage" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+
 <!-- JANELA DE EDIÇÃO DO PERFIL -->
 <div id="profileModal" class="profile-modal" hidden>
     <div class="profile-modal-content">
@@ -617,6 +690,7 @@
     <script src="/auth.js"></script>
     <script src="/catalog.js"></script>
     <script src="/theme.js"></script>
+    <script src="/profile.js"></script>
 
 </body>
 </html>

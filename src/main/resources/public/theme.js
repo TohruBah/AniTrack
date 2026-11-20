@@ -45,9 +45,47 @@
 
     applyTheme(savedTheme);
 
-    button.addEventListener("click", () => {
+    async function loadAccountTheme() {
+        const client = window.supabaseClient;
+        if (!client) return;
+        try {
+            const { data: sessionData } = await client.auth.getSession();
+            const user = sessionData?.session?.user;
+            if (!user) return;
+            const { data, error } = await client
+                .from("profiles")
+                .select("preferred_theme")
+                .eq("id", user.id)
+                .maybeSingle();
+            if (error) throw error;
+            if (data?.preferred_theme && themes.some(theme => theme.id === data.preferred_theme)) {
+                applyTheme(data.preferred_theme);
+            }
+        } catch (error) {
+            console.warn("AniTrack: não foi possível carregar o tema da conta.", error);
+        }
+    }
+
+    loadAccountTheme();
+
+    button.addEventListener("click", async () => {
         const currentIndex = themes.findIndex(theme => theme.id === document.body.dataset.theme || (theme.id === "original" && !document.body.dataset.theme));
         const nextTheme = themes[(currentIndex + 1) % themes.length];
         applyTheme(nextTheme.id);
+
+        const client = window.supabaseClient;
+        if (!client) return;
+        try {
+            const { data: sessionData } = await client.auth.getSession();
+            const user = sessionData?.session?.user;
+            if (!user) return;
+            const { error } = await client
+                .from("profiles")
+                .update({ preferred_theme: nextTheme.id })
+                .eq("id", user.id);
+            if (error) throw error;
+        } catch (error) {
+            console.warn("AniTrack: tema aplicado localmente, mas não foi possível sincronizá-lo com a conta.", error);
+        }
     });
 })();
