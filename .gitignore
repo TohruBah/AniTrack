@@ -1,15 +1,30 @@
-
-# Maven
+# Maven build output (root project and legacy Eclipse export)
 target/
+**/target/
 
-# Banco de dados local
+# IDE settings
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Local databases and SQLite sidecar files
 data/*.db
 data/*.db-shm
 data/*.db-wal
+*.sqlite
+*.sqlite3
 
-# VS Code
-.vscode/
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
 
-# Sistema operacional
+# Operating system
 .DS_Store
 Thumbs.db
+Desktop.ini

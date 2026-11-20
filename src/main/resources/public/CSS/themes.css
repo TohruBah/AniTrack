@@ -496,3 +496,75 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel * {
         transition: none;
     }
 }
+
+
+/* ==========================================================
+   STATUS DOS ANIMES — CORES ADAPTADAS AOS TEMAS
+   Mantém o significado de cada status e garante contraste
+   também quando a etiqueta fica sobre a imagem da capa.
+   ========================================================== */
+body[data-theme="maomao"] {
+  --status-done-bg: rgba(72, 151, 117, .28);
+  --status-done-text: #c5f2d8;
+  --status-done-border: rgba(143, 220, 177, .62);
+  --status-watching-bg: rgba(65, 145, 157, .30);
+  --status-watching-text: #c8f3ee;
+  --status-watching-border: rgba(132, 213, 203, .62);
+  --status-paused-bg: rgba(164, 126, 54, .30);
+  --status-paused-text: #ffe8ad;
+  --status-paused-border: rgba(226, 193, 115, .68);
+  --status-planned-bg: rgba(111, 132, 83, .30);
+  --status-planned-text: #e3f0c4;
+  --status-planned-border: rgba(183, 207, 135, .62);
+}
+
+body[data-theme="gentildonna"] {
+  --status-done-bg: rgba(117, 57, 78, .48);
+  --status-done-text: #ffd9e3;
+  --status-done-border: rgba(229, 145, 168, .70);
+  --status-watching-bg: rgba(93, 65, 105, .48);
+  --status-watching-text: #f0dafa;
+  --status-watching-border: rgba(194, 151, 211, .70);
+  --status-paused-bg: rgba(132, 91, 42, .48);
+  --status-paused-text: #ffe8b5;
+  --status-paused-border: rgba(232, 190, 117, .72);
+  --status-planned-bg: rgba(105, 61, 91, .48);
+  --status-planned-text: #f8d8ef;
+  --status-planned-border: rgba(213, 151, 190, .70);
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--theme-text) !important;
+  background: rgba(20, 28, 25, .72) !important;
+  border: 1px solid var(--theme-border) !important;
+  box-shadow: 0 2px 9px rgba(0, 0, 0, .24) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45) !important;
+}
+
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge.status-concluido,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-cover .status-overlay.status-concluido {
+  color: var(--status-done-text) !important;
+  background: var(--status-done-bg) !important;
+  border-color: var(--status-done-border) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge.status-assistindo,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-cover .status-overlay.status-assistindo {
+  color: var(--status-watching-text) !important;
+  background: var(--status-watching-bg) !important;
+  border-color: var(--status-watching-border) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge.status-pausado,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-cover .status-overlay.status-pausado {
+  color: var(--status-paused-text) !important;
+  background: var(--status-paused-bg) !important;
+  border-color: var(--status-paused-border) !important;
+}
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .status-badge.status-planejado,
+body:is([data-theme="maomao"], [data-theme="gentildonna"]) #list .anime-cover .status-overlay.status-planejado {
+  color: var(--status-planned-text) !important;
+  background: var(--status-planned-bg) !important;
+  border-color: var(--status-planned-border) !important;
+}
