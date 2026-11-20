@@ -189,17 +189,20 @@
                 </nav>
             </div>
 
-            <!-- SELETOR DE TEMA -->
+            <!-- ALTERNADOR CÍCLICO DE TEMA -->
             <div class="theme-switcher">
-                <label class="sidebar-label" for="themeSelect">APARÊNCIA</label>
-                <div class="theme-select-wrap">
-                    <span class="theme-select-icon" aria-hidden="true">✦</span>
-                    <select id="themeSelect" aria-label="Escolher tema do AniTrack">
-                        <option value="original">Original — AniTrack</option>
-                        <option value="maomao">Maomao — Botânica</option>
-                        <option value="gentildonna">Gentildonna — Imperial</option>
-                    </select>
-                </div>
+                <label class="sidebar-label" id="themeSwitcherLabel">APARÊNCIA</label>
+                <button
+                    type="button"
+                    id="themeCycleButton"
+                    class="theme-cycle-button"
+                    aria-labelledby="themeSwitcherLabel themeCycleName"
+                    aria-label="Trocar tema do AniTrack"
+                    title="Trocar tema"
+                >
+                    <span class="theme-cycle-name" id="themeCycleName">Original — AniTrack</span>
+                    <span class="theme-cycle-icon" aria-hidden="true">⟳</span>
+                </button>
             </div>
 
             <div class="sidebar-bottom">

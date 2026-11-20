@@ -418,3 +418,81 @@ body:is([data-theme="maomao"], [data-theme="gentildonna"]) .auth-panel * {
     color: var(--theme-text, #fff) !important;
     background: var(--theme-sidebar, #241522) !important;
 }
+
+
+/* ==========================================
+   ANITRACK — BOTÃO CÍCLICO DE TROCA DE TEMA
+========================================== */
+.theme-switcher {
+    margin: 18px 5px 20px !important;
+}
+
+.theme-cycle-button {
+    width: 100%;
+    min-height: 49px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 13px;
+    border: 1px solid var(--theme-border, rgba(190,160,255,.3));
+    border-radius: 14px;
+    color: var(--theme-text, #f4efff);
+    background: linear-gradient(135deg,
+        var(--theme-panel, rgba(35,25,45,.9)),
+        var(--theme-card, rgba(45,30,50,.95)));
+    box-shadow: 0 5px 16px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.06);
+    backdrop-filter: blur(14px);
+    font: 700 12px 'Nunito', sans-serif;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .22s ease, box-shadow .22s ease,
+                transform .22s ease, background .22s ease;
+}
+
+.theme-cycle-button:hover {
+    border-color: var(--theme-accent, #bda5ed);
+    box-shadow: 0 6px 20px var(--theme-glow, rgba(130,100,190,.2)),
+                inset 0 1px rgba(255,255,255,.09);
+    transform: translateY(-1px);
+}
+
+.theme-cycle-button:active {
+    transform: translateY(0) scale(.985);
+}
+
+.theme-cycle-button:focus-visible {
+    outline: 2px solid var(--theme-accent, #bda5ed);
+    outline-offset: 3px;
+}
+
+.theme-cycle-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.theme-cycle-icon {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
+    color: var(--theme-accent, #d7bd78);
+    background: var(--theme-glow, rgba(130,100,190,.14));
+    font: 400 23px/1 Arial, sans-serif;
+    transition: transform .35s ease, color .25s ease, background .25s ease;
+}
+
+.theme-cycle-button:hover .theme-cycle-icon {
+    transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-cycle-button,
+    .theme-cycle-icon {
+        transition: none;
+    }
+}
