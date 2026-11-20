@@ -296,16 +296,7 @@ function openAddScreen() {
                 ? attributes.episodeCount
                 : null
         };
-<<<<<<< HEAD
-        if (selectedAnime.episodeCount) {
-            form.elements.totalEpisodes.value = selectedAnime.episodeCount;
-            form.elements.totalEpisodes.dispatchEvent(new Event("input", { bubbles: true }));
-        } else {
-            form.elements.totalEpisodes.value = "";
-        }
-=======
         displayTotalEpisodes(selectedAnime.episodeCount);
->>>>>>> d6a59b4 (Ep totais)
         animeSearchInput.value = title;
         form.elements.title.value = title;
         closeAnimeSuggestions();

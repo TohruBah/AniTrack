@@ -2724,8 +2724,6 @@ body {
 #form .status-picker[data-status="concluido"] .status-dot,
 #form .status-option[data-value="Concluído"] .status-dot { background: #70c9a2; }
 @keyframes statusMenuIn { from { opacity: 0; transform: translateY(-5px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
-<<<<<<< HEAD
-=======
 
 
 /* Total de episódios: informação automática e somente para leitura. */
@@ -2749,4 +2747,3 @@ body {
     cursor: not-allowed;
     opacity: .88;
 }
->>>>>>> d6a59b4 (Ep totais)
