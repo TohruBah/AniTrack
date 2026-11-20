@@ -317,17 +317,31 @@
 
             showProfileMessage("Atualizando perfil...");
 
-            const { data, error } = await supabaseClient
+            const { error: updateError } = await supabaseClient
                 .from("profiles")
                 .update({
                     username,
                     avatar_url: newAvatarUrl
                 })
-                .eq("id", currentAuthUser.id)
-                .select("username, avatar_url")
-                .single();
+                .eq("id", currentAuthUser.id);
 
-            if (error) throw error;
+            if (updateError) throw updateError;
+
+            // Não usar .single() no retorno do UPDATE: o PostgREST pode
+            // devolver zero linhas e gerar "Cannot coerce ... single JSON object".
+            const { data, error: fetchError } = await supabaseClient
+                .from("profiles")
+                .select("username, avatar_url")
+                .eq("id", currentAuthUser.id)
+                .maybeSingle();
+
+            if (fetchError) throw fetchError;
+            if (!data) {
+                throw new Error("Seu perfil não foi encontrado. Verifique se existe um registro em profiles para esta conta.");
+            }
+            if (data.username !== username || (data.avatar_url || null) !== (newAvatarUrl || null)) {
+                throw new Error("O Supabase não confirmou a atualização do perfil. Verifique as permissões RLS da tabela profiles.");
+            }
 
             // Atualizar informações na interface
             currentAvatarUrl = data.avatar_url || null;

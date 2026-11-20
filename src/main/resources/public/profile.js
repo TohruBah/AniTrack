@@ -25,16 +25,10 @@
   }
 
   function showProfileView() {
-<<<<<<< HEAD
-    // Garante que nenhuma outra página da aplicação permaneça visível.
+    // Oculta todas as telas e exibe somente o perfil.
     document.querySelectorAll(".main-content .page-view").forEach(view => {
       view.hidden = view !== profileView;
     });
-=======
-    $("#catalogView").hidden = true;
-    $("#statisticsView").hidden = true;
-    $("#addAnimeView").hidden = true;
->>>>>>> origin/main
     profileView.hidden = false;
     document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item === navButton));
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -182,8 +176,22 @@
 
       const selectedIds = [...$("#featuredAnimeChoices").querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
       if (selectedIds.length > 3) throw new Error("Selecione no máximo três animes.");
-      const { data, error } = await supabase.from("profiles").update({ banner_url: bannerUrl, featured_anime_ids: selectedIds }).eq("id", user.id).select("username, avatar_url, banner_url, featured_anime_ids").single();
-      if (error) throw error;
+      const { error: updateError } = await supabase.from("profiles")
+        .update({ banner_url: bannerUrl, featured_anime_ids: selectedIds })
+        .eq("id", user.id);
+      if (updateError) throw updateError;
+
+      // Busca separada evita erro de coerção quando UPDATE não retorna linha.
+      const { data, error: fetchError } = await supabase.from("profiles")
+        .select("username, avatar_url, banner_url, featured_anime_ids")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (fetchError) throw fetchError;
+      if (!data) throw new Error("Perfil não encontrado. Confira o registro do usuário na tabela profiles.");
+      if ((data.banner_url || null) !== (bannerUrl || null) ||
+          JSON.stringify(data.featured_anime_ids || []) !== JSON.stringify(selectedIds)) {
+        throw new Error("O Supabase não confirmou as alterações. Verifique as políticas RLS e as colunas da tabela profiles.");
+      }
       profile = data;
       const oldPath = storagePathFromUrl(previousBanner);
       if ((uploaded || removeBanner) && oldPath && previousBanner !== bannerUrl) {

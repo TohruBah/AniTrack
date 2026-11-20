@@ -1,1 +1,696 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AniTrack</title><link rel="stylesheet" href="/style.css"></head><body><main><header><p>SEU CATÁLOGO PESSOAL</p><h1>AniTrack</h1><span>Organize seus animes e acompanhe seu progresso.</span></header><section><h2>Adicionar anime</h2><form id="form"><label>Título<input name="title" maxlength="100" required></label><label>Total de episódios<input name="totalEpisodes" type="number" min="1" value="12"></label><label>Assistidos<input name="watchedEpisodes" type="number" min="0" value="0"></label><label>Status<select name="status"><option>Planejado</option><option>Assistindo</option><option>Pausado</option><option>Concluído</option></select></label><button>Adicionar</button><p id="message"></p></form></section><section><h2>Meu catálogo</h2><div id="list"></div></section></main><script src="/app.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111426">
+
+    <title>AniTrack | Sua Coleção de Animes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
+<link rel="shortcut icon" href="/favicon.ico?v=2">
+
+    <!-- Estilos principais do AniTrack -->
+<link rel="stylesheet" href="/style.css">
+
+<!-- Personalizações do layout -->
+<link rel="stylesheet" href="/CSS/layout.css">
+<link rel="stylesheet" href="/CSS/themes.css">
+</head>
+
+<body>
+
+    <!-- EFEITOS DE FUNDO -->
+    <div class="background-effects">
+        <div class="glow glow-blue"></div>
+        <div class="glow glow-purple"></div>
+    </div>
+
+    <!-- AUTENTICAÇÃO -->
+    <main id="authSection" class="auth-page">
+
+        <header class="hero">
+            <div class="hero-label">
+                <span class="label-line"></span>
+                SUA COLEÇÃO PESSOAL DE ANIMES
+                <span class="label-line"></span>
+            </div>
+
+            <h1>Ani<span>Track</span></h1>
+
+            <p class="hero-description">
+                Um universo para organizar e acompanhar suas histórias favoritas.
+            </p>
+
+            <div class="hero-decoration">
+                <span>✦</span>
+                <span class="decoration-center">❀</span>
+                <span>✦</span>
+            </div>
+        </header>
+
+        <section class="auth-panel">
+
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">BEM-VINDO AO ANITRACK</span>
+                    <h2 id="authTitle">Entrar na sua conta</h2>
+                </div>
+                <span class="section-symbol">✧</span>
+            </div>
+
+            <form id="authForm">
+
+                <label class="field">
+                    E-mail
+                    <input
+                        id="authEmail"
+                        type="email"
+                        placeholder="seuemail@exemplo.com"
+                        autocomplete="email"
+                        required
+                    >
+                </label>
+
+                <label class="field">
+                    Senha
+                    <input
+                        id="authPassword"
+                        type="password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        minlength="6"
+                        required
+                    >
+                </label>
+
+                <div class="form-footer">
+                    <button
+                        type="submit"
+                        class="primary-button"
+                        id="authSubmit"
+                    >
+                        Entrar
+                    </button>
+
+                    <p id="authMessage" aria-live="polite"></p>
+                </div>
+
+            </form>
+
+            <p class="auth-switch">
+                Ainda não possui uma conta?
+
+                <button
+                    type="button"
+                    id="authToggle"
+                    class="secondary-button"
+                >
+                    Criar conta
+                </button>
+            </p>
+
+        </section>
+
+    </main>
+
+    <!-- APLICAÇÃO -->
+    <div id="appContent" class="app-layout" hidden>
+
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar">
+
+            <div class="sidebar-brand">
+    <img
+        class="brand-icon"
+        src="/images/anitrack-logo.png"
+        alt="AniTrack"
+    >
+    <span>Ani<span>Track</span></span>
+</div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-label">BIBLIOTECA</span>
+
+                <nav class="sidebar-nav">
+
+                    <button
+                        type="button"
+                        class="nav-item active"
+                        data-view="home"
+                    >
+                        <span class="nav-icon">⌂</span>
+                        Início
+                    </button>
+
+                    <button
+                        type="button"
+                        class="nav-item"
+                        data-view="favorites"
+                    >
+                        <span class="nav-icon">♡</span>
+                        Favoritos
+                    </button>
+
+                    <button
+                        type="button"
+                        class="nav-item"
+                        data-view="mine"
+                    >
+                        <span class="nav-icon">✧</span>
+                        Minha coleção
+                    </button>
+
+                    <button
+                        type="button"
+                        class="nav-item"
+                        data-view="shared"
+                    >
+                        <span class="nav-icon">❀</span>
+                        Compartilhada
+                    </button>
+
+                    <button
+                        type="button"
+                        class="nav-item"
+                        data-view="statistics"
+                    >
+                        <span class="nav-icon">▥</span>
+                        Estatísticas
+                    </button>
+
+                    <button type="button" class="nav-item" id="profileNavButton">
+                        <span class="nav-icon">◎</span>
+                        Meu perfil
+                    </button>
+
+                </nav>
+            </div>
+
+            <!-- ALTERNADOR CÍCLICO DE TEMA -->
+            <div class="theme-switcher">
+                <label class="sidebar-label" id="themeSwitcherLabel">APARÊNCIA</label>
+                <button
+                    type="button"
+                    id="themeCycleButton"
+                    class="theme-cycle-button"
+                    aria-labelledby="themeSwitcherLabel themeCycleName"
+                    aria-label="Trocar tema do AniTrack"
+                    title="Trocar tema"
+                >
+                    <span class="theme-cycle-name" id="themeCycleName">Original — AniTrack</span>
+                    <span class="theme-cycle-icon" aria-hidden="true">⟳</span>
+                </button>
+            </div>
+
+            <div class="sidebar-bottom">
+
+               <div class="sidebar-user">
+    <div class="user-avatar">
+        <img
+            id="sidebarAvatar"
+            src="/favicon.ico"
+            alt="Avatar do usuário"
+        >
+    </div>
+
+    <div class="user-details">
+        <strong id="currentUser"></strong>
+        <span>Conta conectada</span>
+    </div>
+</div>
+
+                    <button
+    type="button"
+    id="editProfileButton"
+    class="edit-profile-button"
+>
+    ✧ Editar perfil
+</button>
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    ↪ Sair da conta
+                </button>
+
+            </div>
+
+        </aside>
+
+        <!-- ÁREA PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- CATÁLOGO -->
+            <section id="catalogView" class="page-view">
+
+                <header class="page-header">
+
+                    <div>
+                        <span class="eyebrow">SUA BIBLIOTECA</span>
+                        <h1 id="pageTitle">Minha coleção</h1>
+                        <p id="pageDescription">
+                            Descubra, organize e acompanhe seus animes favoritos.
+                        </p>
+                    </div>
+
+                    <button
+    type="button"
+    id="addAnimeButton"
+    class="primary-button add-anime-button"
+    aria-label="Adicionar anime"
+    title="Adicionar anime"
+>
+    <span>＋</span>
+</button>
+                </header>
+
+                <!-- PESQUISA -->
+                <div class="catalog-toolbar">
+
+                    <div class="catalog-search">
+                        <span>⌕</span>
+                        <input
+                            id="catalogSearch"
+                            type="search"
+                            placeholder="Pesquisar animes..."
+                            aria-label="Pesquisar animes"
+                        >
+                    </div>
+                    <div class="library-controls">
+                        <button type="button" id="toggleLibraryFilters" class="library-control-button" aria-expanded="false" aria-controls="libraryFilterPanel">
+                            <span aria-hidden="true">☷</span> Filtros <span id="activeFilterCount" class="filter-count" hidden>0</span>
+                        </button>
+                        <label class="library-sort-label" for="librarySort">Ordenar</label>
+                        <select id="librarySort" class="library-sort">
+                            <option value="updated">Atualizados recentemente</option>
+                            <option value="title-asc">Nome: A–Z</option>
+                            <option value="title-desc">Nome: Z–A</option>
+                            <option value="rating-desc">Melhor avaliação</option>
+                            <option value="progress-desc">Maior progresso</option>
+                            <option value="progress-asc">Menor progresso</option>
+                        </select>
+                        <div class="view-toggle" role="group" aria-label="Modo de visualização">
+                            <button type="button" class="view-toggle-button is-active" data-library-view="grid" aria-pressed="true" title="Visualização em grade">▦</button>
+                            <button type="button" class="view-toggle-button" data-library-view="list" aria-pressed="false" title="Visualização em lista">☰</button>
+                        </div>
+                    </div>
+                    <section id="libraryFilterPanel" class="library-filter-panel" hidden aria-label="Filtros avançados">
+                        <div class="filter-panel-heading">
+                            <div><strong>Filtros avançados</strong><span>Refine sua coleção</span></div>
+                            <button type="button" id="clearLibraryFilters" class="filter-clear-button">Limpar filtros</button>
+                        </div>
+                        <div class="filter-fields">
+                            <label>Status
+                                <select id="filterStatus">
+                                    <option value="">Todos os status</option>
+                                    <option>Planejado</option><option>Assistindo</option><option>Pausado</option><option>Concluído</option>
+                                </select>
+                            </label>
+                            <label>Gênero
+                                <select id="filterGenre"><option value="">Todos os gêneros</option></select>
+                            </label>
+                            <label>Formato
+                                <select id="filterFormat"><option value="">Todos os formatos</option></select>
+                            </label>
+                            <label>Nota mínima
+                                <select id="filterRating">
+                                    <option value="">Qualquer nota</option>
+                                    <option value="5">5+</option><option value="7">7+</option><option value="8">8+</option><option value="9">9+</option>
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- CATÁLOGO E ESTATÍSTICAS -->
+                
+                <!-- CATÁLOGO DE ANIMES -->
+                <section class="catalog-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">SUAS COLEÇÕES</span>
+                            <h2>Biblioteca de animes</h2>
+                        </div>
+
+                        <span class="section-symbol">❀</span>
+                    </div>
+
+                    <div id="list" class="anime-list"></div>
+
+                </section>
+
+            </section>
+
+            <!-- PÁGINA DE ESTATÍSTICAS -->
+            <section id="statisticsView" class="page-view" hidden>
+
+                <header class="page-header">
+                    <div>
+                        <span class="eyebrow">ANÁLISE DA COLEÇÃO</span>
+                        <h1>Estatísticas</h1>
+                        <p>Acompanhe seu progresso e os resultados da sua coleção.</p>
+                    </div>
+                </header>
+
+                <section class="statistics-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">VISÃO GERAL</span>
+                            <h2>Desempenho da coleção</h2>
+                        </div>
+
+                        <span class="section-symbol">✧</span>
+                    </div>
+
+                    <div id="stats" class="stats-dashboard"></div>
+
+                </section>
+
+            </section>
+
+
+            </section>
+
+            <!-- PERFIL IMERSIVO -->
+            <section id="profileView" class="page-view profile-page" hidden>
+                <header class="page-header profile-page-heading">
+                    <div>
+                        <span class="eyebrow">IDENTIDADE ANITRACK</span>
+                        <h1>Meu perfil</h1>
+                        <p>Seu espaço, sua coleção e suas histórias favoritas.</p>
+                    </div>
+                    <button type="button" id="editImmersiveProfile" class="primary-button">✧ Personalizar perfil</button>
+                </header>
+
+                <section class="immersive-profile-card">
+                    <div id="profileBanner" class="immersive-profile-banner">
+                        <span class="profile-banner-caption">ANITRACK MEMBER</span>
+                    </div>
+                    <div class="immersive-profile-identity">
+                        <img id="immersiveAvatar" src="/favicon.ico" alt="Avatar do perfil">
+                        <div class="immersive-profile-name">
+                            <span class="eyebrow">PERFIL PÚBLICO</span>
+                            <h2 id="immersiveUsername">Carregando...</h2>
+                            <p>Uma coleção de histórias para acompanhar.</p>
+                        </div>
+                        <span class="profile-public-pill">✦ Público</span>
+                    </div>
+                </section>
+
+                <section class="profile-stat-grid" id="profileStats" aria-live="polite">
+                    <article class="profile-stat-card"><span>ANIMES</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>CONCLUÍDOS</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>EPISÓDIOS VISTOS</span><strong>—</strong></article>
+                    <article class="profile-stat-card"><span>MÉDIA DAS NOTAS</span><strong>—</strong></article>
+                </section>
+
+                <section class="profile-featured-section">
+                    <div class="section-heading">
+                        <div><span class="eyebrow">SELEÇÃO PESSOAL</span><h2>Animes em destaque</h2></div>
+                        <span class="section-symbol">✧</span>
+                    </div>
+                    <div id="profileFeaturedAnime" class="profile-featured-grid">
+                        <p class="profile-empty-state">Escolha até três animes para destacar no seu perfil.</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- TELA DE CADASTRO -->
+            <section id="addAnimeView" class="page-view" hidden>
+
+                <header class="page-header">
+
+                    <div>
+                        <span class="eyebrow">GERENCIAMENTO DA COLEÇÃO</span>
+                        <h1>Adicionar anime</h1>
+                        <p>
+                            Adicione uma nova história à sua biblioteca.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="backToCatalog"
+                        class="secondary-button"
+                    >
+                        ← Voltar ao catálogo
+                    </button>
+
+                </header>
+
+                <section class="form-section">
+
+                    <div class="section-heading">
+                        <div>
+                            <span class="eyebrow">NOVO REGISTRO</span>
+                            <h2>Informações do anime</h2>
+                        </div>
+
+                        <span class="section-symbol">✧</span>
+                    </div>
+
+                    <form id="form">
+
+                        <div class="form-grid">
+
+                            <div class="field field-full anime-picker-field">
+                                <label for="animeSearchInput">Título do anime</label>
+                                <input
+                                    id="animeSearchInput"
+                                    type="search"
+                                    placeholder="Digite para buscar no catálogo Kitsu..."
+                                    autocomplete="off"
+                                    aria-autocomplete="list"
+                                    aria-controls="animeSuggestions"
+                                    aria-expanded="false"
+                                    required
+                                >
+                                <input type="hidden" name="title" required>
+                                <div id="animeSuggestions" class="anime-suggestions" role="listbox" hidden></div>
+                                <div id="selectedAnimePreview" class="selected-anime-preview" hidden aria-live="polite"></div>
+                                <small class="field-hint">Selecione uma obra nas sugestões para preencher o título e a capa.</small>
+                            </div>
+
+                            <div class="field total-episodes-field" id="totalEpisodesField" hidden>
+                                <span class="field-label">Total de episódios</span>
+                                <div class="total-episodes-display" id="totalEpisodesDisplay" aria-live="polite">
+                                    Selecione um anime para consultar os episódios.
+                                </div>
+                                <input name="totalEpisodes" type="hidden" value="">
+                            </div>
+
+                            <label class="field">
+                                Episódios assistidos
+
+                                <input
+                                    name="watchedEpisodes"
+                                    type="number"
+                                    min="0"
+                                    value="0"
+                                    required
+                                >
+                            </label>
+
+                            <label class="field field-full">
+                                Status
+
+                                <select name="status" class="status-native-select" required tabindex="-1" aria-hidden="true">
+                                    <option value="Planejado">Planejado</option>
+                                    <option value="Assistindo">Assistindo</option>
+                                    <option value="Pausado">Pausado</option>
+                                    <option value="Concluído">Concluído</option>
+                                </select>
+                                <div class="status-picker" data-status-picker>
+                                    <button type="button" class="status-picker-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="status-picker-current"><span class="status-dot"></span><span class="status-picker-label">Planejado</span></span>
+                                        <span class="status-picker-chevron" aria-hidden="true">⌄</span>
+                                    </button>
+                                    <div class="status-picker-menu" role="listbox" aria-label="Status do anime" hidden>
+                                        <button type="button" class="status-option" role="option" data-value="Planejado" aria-selected="true"><span class="status-dot"></span>Planejado</button>
+                                        <button type="button" class="status-option" role="option" data-value="Assistindo" aria-selected="false"><span class="status-dot"></span>Assistindo</button>
+                                        <button type="button" class="status-option" role="option" data-value="Pausado" aria-selected="false"><span class="status-dot"></span>Pausado</button>
+                                        <button type="button" class="status-option" role="option" data-value="Concluído" aria-selected="false"><span class="status-dot"></span>Concluído</button>
+                                    </div>
+                                </div>
+                            </label>
+
+                        </div>
+
+                        <div class="form-footer">
+
+                            <button
+                                type="submit"
+                                class="primary-button"
+                            >
+                                ＋ Adicionar à coleção
+                            </button>
+
+                            <p id="message" aria-live="polite"></p>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+            </section>
+
+
+<!-- PERSONALIZAÇÃO DO PERFIL IMERSIVO -->
+<div id="immersiveProfileModal" class="profile-modal" hidden>
+  <div class="profile-modal-content immersive-editor-content">
+    <div class="section-heading">
+      <div><span class="eyebrow">PERSONALIZAÇÃO</span><h2>Meu perfil</h2></div>
+      <button type="button" id="closeImmersiveProfile" class="close-profile-button" aria-label="Fechar">×</button>
+    </div>
+    <div class="profile-banner-editor">
+      <div id="bannerPreview" class="banner-preview"><span>Prévia do banner</span></div>
+      <label for="profileBannerInput" class="avatar-upload-button">✧ Escolher banner</label>
+      <input type="file" id="profileBannerInput" accept="image/png,image/jpeg,image/webp" hidden>
+      <button type="button" id="removeProfileBanner" class="remove-avatar-button">Remover banner</button>
+    </div>
+    <div class="profile-feature-picker">
+      <div><strong>Animes em destaque</strong><p>Selecione até três animes da sua coleção.</p></div>
+      <div id="featuredAnimeChoices" class="featured-anime-choices"><p>Carregando sua coleção...</p></div>
+    </div>
+    <div class="form-footer">
+      <button type="button" id="saveImmersiveProfile" class="primary-button">Salvar personalização</button>
+      <p id="immersiveProfileMessage" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+
+<!-- JANELA DE EDIÇÃO DO PERFIL -->
+<div id="profileModal" class="profile-modal" hidden>
+    <div class="profile-modal-content">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">MINHA CONTA</span>
+                <h2>Editar perfil</h2>
+            </div>
+
+            <button
+                type="button"
+                id="closeProfileModal"
+                class="close-profile-button"
+                aria-label="Fechar"
+            >
+                ×
+            </button>
+        </div>
+
+
+<!-- Personalização do avatar -->
+<div class="profile-avatar-editor">
+
+    <div class="profile-avatar-preview">
+        <img
+            id="profileAvatarPreview"
+            src="/favicon.ico"
+            alt="Pré-visualização do avatar"
+        >
+    </div>
+
+    <div class="profile-avatar-actions">
+        <strong>Foto de perfil</strong>
+
+        <span>Escolha uma imagem para representar sua conta.</span>
+
+        <label for="profileAvatarInput" class="avatar-upload-button">
+            ✧ Escolher imagem
+        </label>
+
+        <input
+            type="file"
+            id="profileAvatarInput"
+            accept="image/png,image/jpeg,image/webp"
+            hidden
+        >
+
+        <button
+            type="button"
+            id="removeProfileAvatar"
+            class="remove-avatar-button"
+        >
+            Remover foto
+        </button>
+    </div>
+
+</div>
+
+
+        <form id="profileForm">
+
+            <label class="field">
+                Nome de usuário
+
+                <input
+                    type="text"
+                    id="profileUsername"
+                    minlength="3"
+                    maxlength="20"
+                    pattern="[A-Za-z0-9_]+"
+                    placeholder="Ex.: Tohru"
+                    required
+                >
+            </label>
+
+            <p class="profile-hint">
+                Seu nome será exibido com @ na barra lateral.
+            </p>
+
+            <div class="form-footer">
+                <button type="submit" class="primary-button">
+                    Salvar alterações
+                </button>
+
+                <p id="profileMessage" aria-live="polite"></p>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+        </main>
+
+    </div>
+
+    <!-- CONFIRMAÇÃO PERSONALIZADA DE EXCLUSÃO -->
+    <div id="deleteConfirmModal" class="delete-confirm-overlay" hidden aria-hidden="true">
+        <section class="delete-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDescription" tabindex="-1">
+            <div class="delete-confirm-icon" aria-hidden="true">⌫</div>
+            <span class="delete-confirm-eyebrow">AÇÃO IRREVERSÍVEL</span>
+            <h2 id="deleteConfirmTitle">Excluir anime?</h2>
+            <p id="deleteConfirmDescription">Tem certeza de que deseja remover este anime da sua biblioteca?</p>
+            <div class="delete-confirm-anime" id="deleteConfirmAnime"></div>
+            <div class="delete-confirm-actions">
+                <button type="button" class="delete-cancel-button" id="cancelDeleteAnime">Cancelar</button>
+                <button type="button" class="delete-accept-button" id="confirmDeleteAnime">Excluir anime</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/supabase-config.js"></script>
+    <script src="/auth.js"></script>
+    <script src="/catalog.js"></script>
+    <script src="/theme.js"></script>
+    <script src="/profile.js"></script>
+
+</body>
+</html>
