@@ -9,6 +9,8 @@
     const animeSearchInput = document.querySelector("#animeSearchInput");
     const animeSuggestions = document.querySelector("#animeSuggestions");
     const selectedAnimePreview = document.querySelector("#selectedAnimePreview");
+    const totalEpisodesField = document.querySelector("#totalEpisodesField");
+    const totalEpisodesDisplay = document.querySelector("#totalEpisodesDisplay");
 
     const catalogView = document.querySelector("#catalogView");
     const addAnimeView = document.querySelector("#addAnimeView");
@@ -26,7 +28,8 @@
     }
 
     if (!catalogView || !addAnimeView || !statisticsView || !statsContainer || !search
-        || !animeSearchInput || !animeSuggestions || !selectedAnimePreview) {
+        || !animeSearchInput || !animeSuggestions || !selectedAnimePreview
+        || !totalEpisodesField || !totalEpisodesDisplay) {
         console.error("AniTrack: elementos de navegação não encontrados.");
         return;
     }
@@ -244,10 +247,23 @@ function openAddScreen() {
         }
     }
 
+    // Exibe o total informado pelo Kitsu sem permitir edição manual.
+    function displayTotalEpisodes(count) {
+        const validCount = Number.isInteger(count) && count > 0 ? count : null;
+        form.elements.totalEpisodes.value = validCount ?? "";
+        totalEpisodesField.hidden = false;
+        totalEpisodesDisplay.textContent = validCount
+            ? `${validCount} episódios`
+            : "Quantidade de episódios não informada pelo Kitsu";
+    }
+
     // Busca de sugestões Kitsu para selecionar uma obra válida.
     function clearAnimeSelection() {
         selectedAnime = null;
         form.elements.title.value = "";
+        form.elements.totalEpisodes.value = "";
+        totalEpisodesField.hidden = true;
+        totalEpisodesDisplay.textContent = "Selecione um anime para consultar os episódios.";
         selectedAnimePreview.hidden = true;
         selectedAnimePreview.replaceChildren();
         submitButton.disabled = true;
@@ -280,12 +296,16 @@ function openAddScreen() {
                 ? attributes.episodeCount
                 : null
         };
+<<<<<<< HEAD
         if (selectedAnime.episodeCount) {
             form.elements.totalEpisodes.value = selectedAnime.episodeCount;
             form.elements.totalEpisodes.dispatchEvent(new Event("input", { bubbles: true }));
         } else {
             form.elements.totalEpisodes.value = "";
         }
+=======
+        displayTotalEpisodes(selectedAnime.episodeCount);
+>>>>>>> d6a59b4 (Ep totais)
         animeSearchInput.value = title;
         form.elements.title.value = title;
         closeAnimeSuggestions();
@@ -946,10 +966,10 @@ ratingWrapper.append(ratingIcon, ratingSelect);
 
         form.elements.title.value = anime.title;
         animeSearchInput.value = anime.title;
-        selectedAnime = { title: anime.title, id: null, poster: null, year: "" };
+        selectedAnime = { title: anime.title, id: null, poster: null, year: "", episodeCount: anime.totalEpisodes };
         selectedAnimePreview.hidden = true;
         submitButton.disabled = false;
-        form.elements.totalEpisodes.value = anime.totalEpisodes;
+        displayTotalEpisodes(anime.totalEpisodes);
         form.elements.watchedEpisodes.value = anime.watchedEpisodes;
         form.elements.status.value = anime.status;
         syncStatusPicker();
@@ -1012,8 +1032,9 @@ ratingWrapper.append(ratingIcon, ratingSelect);
             return;
         }
 
-        if (!Number.isInteger(totalEpisodes) || totalEpisodes <= 0) {
-            showMessage("O total de episódios deve ser maior que zero.", true);
+        if (!Number.isInteger(totalEpisodes) || totalEpisodes <= 0
+            || totalEpisodes !== selectedAnime.episodeCount) {
+            showMessage("O Kitsu não informou um total válido de episódios para esta obra. Não é possível cadastrar sem essa informação.", true);
             return;
         }
 

@@ -2724,3 +2724,29 @@ body {
 #form .status-picker[data-status="concluido"] .status-dot,
 #form .status-option[data-value="Concluído"] .status-dot { background: #70c9a2; }
 @keyframes statusMenuIn { from { opacity: 0; transform: translateY(-5px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+<<<<<<< HEAD
+=======
+
+
+/* Total de episódios: informação automática e somente para leitura. */
+.total-episodes-field[hidden] {
+    display: none !important;
+}
+.total-episodes-field .field-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+.total-episodes-display {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color, rgba(255,255,255,.14));
+    border-radius: 10px;
+    background: var(--input-bg, rgba(255,255,255,.045));
+    color: var(--text-color, inherit);
+    cursor: not-allowed;
+    opacity: .88;
+}
+>>>>>>> d6a59b4 (Ep totais)
