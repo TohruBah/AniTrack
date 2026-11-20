@@ -533,6 +533,10 @@ function updateNavigation() {
 // Navegação lateral
 document.querySelectorAll(".nav-item").forEach(button => {
     button.addEventListener("click", () => {
+        // A tela de perfil possui navegação própria em profile.js.
+        // Não deixe o handler do catálogo redirecioná-la de volta para a biblioteca.
+        if (button.id === "profileNavButton") return;
+
         const view = button.dataset.view;
 
         // Abrir estatísticas
