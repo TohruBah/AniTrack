@@ -1642,3 +1642,20 @@ select:focus {
         font-size: 25px;
     }
 }
+
+
+/* Seletor de obras Kitsu */
+.anime-picker-field { position: relative; }
+.anime-picker-field > label { display:block; color:#d8d5eb; font-size:12px; font-weight:600; }
+.field-hint { display:block; margin-top:7px; color:var(--text-muted,#aaa4c4); font-size:11px; }
+.anime-suggestions { position:absolute; z-index:50; top:calc(100% - 18px); left:0; right:0; max-height:320px; overflow-y:auto; padding:6px; border:1px solid rgba(175,163,226,.28); border-radius:12px; background:var(--panel,#17172a); box-shadow:0 14px 35px rgba(0,0,0,.35); }
+.anime-suggestion-option { display:flex; align-items:center; gap:11px; width:100%; padding:8px; border:0; border-radius:8px; background:transparent; color:inherit; text-align:left; cursor:pointer; }
+.anime-suggestion-option:hover,.anime-suggestion-option:focus-visible { background:rgba(175,163,226,.14); outline:none; }
+.anime-suggestion-option img { width:38px; height:52px; flex:0 0 38px; border-radius:5px; object-fit:cover; }
+.anime-suggestion-option span,.selected-anime-preview div { display:grid; gap:3px; min-width:0; }
+.anime-suggestion-option strong { font-size:12px; line-height:1.35; }
+.anime-suggestion-option small,.selected-anime-preview small { color:var(--text-muted,#aaa4c4); font-size:11px; }
+.anime-suggestion-empty { padding:14px 10px; color:var(--text-muted,#aaa4c4); font-size:12px; }
+.selected-anime-preview { display:flex; align-items:center; gap:12px; margin-top:12px; padding:10px; border:1px solid rgba(175,163,226,.25); border-radius:10px; background:rgba(175,163,226,.07); }
+.selected-anime-preview img { width:48px; height:66px; border-radius:6px; object-fit:cover; }
+.form-footer button:disabled { opacity:.48; cursor:not-allowed; }

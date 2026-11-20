@@ -6,6 +6,9 @@
     const form = document.querySelector("#form");
     const list = document.querySelector("#list");
     const message = document.querySelector("#message");
+    const animeSearchInput = document.querySelector("#animeSearchInput");
+    const animeSuggestions = document.querySelector("#animeSuggestions");
+    const selectedAnimePreview = document.querySelector("#selectedAnimePreview");
 
     const catalogView = document.querySelector("#catalogView");
     const addAnimeView = document.querySelector("#addAnimeView");
@@ -22,7 +25,8 @@
         return;
     }
 
-    if (!catalogView || !addAnimeView || !statisticsView || !statsContainer || !search) {
+    if (!catalogView || !addAnimeView || !statisticsView || !statsContainer || !search
+        || !animeSearchInput || !animeSuggestions || !selectedAnimePreview) {
         console.error("AniTrack: elementos de navegação não encontrados.");
         return;
     }
@@ -31,6 +35,10 @@
     let editingId = null;
     let animes = [];
     let libraryFilter = "all";
+    let selectedAnime = null;
+    let suggestionTimer = null;
+    let suggestionRequestId = 0;
+    let isSaving = false;
 
     const coverCache = new Map();
 
@@ -55,6 +63,7 @@
     cancelButton.hidden = true;
 
     submitButton.insertAdjacentElement("afterend", cancelButton);
+    submitButton.disabled = true;
 
     // Mensagens
     function showMessage(text, isError = false) {
@@ -96,6 +105,9 @@ function openAddScreen() {
     addAnimeButton.addEventListener("click", () => {
         cancelEditing();
         form.reset();
+        animeSearchInput.value = "";
+        clearAnimeSelection();
+        closeAnimeSuggestions();
         openAddScreen();
     });
 
@@ -184,6 +196,162 @@ function openAddScreen() {
             image.src = cover;
         }
     }
+
+    // Busca de sugestões Kitsu para selecionar uma obra válida.
+    function clearAnimeSelection() {
+        selectedAnime = null;
+        form.elements.title.value = "";
+        selectedAnimePreview.hidden = true;
+        selectedAnimePreview.replaceChildren();
+        submitButton.disabled = true;
+    }
+
+    function closeAnimeSuggestions() {
+        animeSuggestions.hidden = true;
+        animeSuggestions.replaceChildren();
+        animeSearchInput.setAttribute("aria-expanded", "false");
+    }
+
+    function selectAnimeSuggestion(anime) {
+        const attributes = anime.attributes || {};
+        const title = attributes.canonicalTitle
+            || Object.values(attributes.titles || {}).find(Boolean);
+        if (!title) return;
+
+        const poster = attributes.posterImage?.large
+            || attributes.posterImage?.medium
+            || attributes.posterImage?.small
+            || attributes.posterImage?.original
+            || null;
+
+        selectedAnime = {
+            id: anime.id,
+            title,
+            poster,
+            year: attributes.startDate ? attributes.startDate.slice(0, 4) : ""
+        };
+        animeSearchInput.value = title;
+        form.elements.title.value = title;
+        closeAnimeSuggestions();
+
+        selectedAnimePreview.replaceChildren();
+        if (poster) {
+            const image = document.createElement("img");
+            image.src = poster;
+            image.alt = `Capa de ${title}`;
+            image.loading = "lazy";
+            selectedAnimePreview.append(image);
+        }
+        const details = document.createElement("div");
+        const selectedTitle = document.createElement("strong");
+        selectedTitle.textContent = title;
+        details.append(selectedTitle);
+        if (selectedAnime.year) {
+            const year = document.createElement("small");
+            year.textContent = selectedAnime.year;
+            details.append(year);
+        }
+        selectedAnimePreview.append(details);
+        selectedAnimePreview.hidden = false;
+
+        if (poster) {
+            coverCache.set(normalizeTitle(title), Promise.resolve(poster));
+        }
+        validateDuplicateSelection();
+    }
+
+    function validateDuplicateSelection() {
+        if (!selectedAnime) return;
+        const duplicate = animes.some(anime =>
+            anime.userId === currentUserId
+            && anime.id !== editingId
+            && normalizeTitle(anime.title) === normalizeTitle(selectedAnime.title)
+        );
+        submitButton.disabled = duplicate || isSaving;
+        if (duplicate) {
+            showMessage("Esta obra já está na sua biblioteca.", true);
+        } else if (form.elements.title.value) {
+            showMessage("");
+        }
+    }
+
+    async function searchAnimeSuggestions(term, requestId) {
+        try {
+            const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(term)}&page[limit]=8&sort=popularityRank`;
+            const response = await fetch(url, {
+                headers: { Accept: "application/vnd.api+json" }
+            });
+            if (!response.ok) throw new Error(`Kitsu respondeu ${response.status}`);
+            const result = await response.json();
+            if (requestId !== suggestionRequestId) return;
+
+            animeSuggestions.replaceChildren();
+            const entries = (result.data || []).filter(item =>
+                item.attributes?.canonicalTitle || Object.values(item.attributes?.titles || {}).some(Boolean)
+            );
+
+            if (!entries.length) {
+                const empty = document.createElement("div");
+                empty.className = "anime-suggestion-empty";
+                empty.textContent = "Nenhuma obra encontrada. Tente outro título.";
+                animeSuggestions.append(empty);
+            } else {
+                entries.forEach(anime => {
+                    const attributes = anime.attributes;
+                    const title = attributes.canonicalTitle
+                        || Object.values(attributes.titles || {}).find(Boolean);
+                    const poster = attributes.posterImage?.small
+                        || attributes.posterImage?.medium
+                        || null;
+                    const option = document.createElement("button");
+                    option.type = "button";
+                    option.className = "anime-suggestion-option";
+                    option.setAttribute("role", "option");
+                    const image = document.createElement("img");
+                    image.alt = "";
+                    image.src = poster || fallbackCover;
+                    const info = document.createElement("span");
+                    const name = document.createElement("strong");
+                    name.textContent = title;
+                    info.append(name);
+                    if (attributes.startDate) {
+                        const year = document.createElement("small");
+                        year.textContent = attributes.startDate.slice(0, 4);
+                        info.append(year);
+                    }
+                    option.append(image, info);
+                    option.addEventListener("click", () => selectAnimeSuggestion(anime));
+                    animeSuggestions.append(option);
+                });
+            }
+            animeSuggestions.hidden = false;
+            animeSearchInput.setAttribute("aria-expanded", "true");
+        } catch (error) {
+            if (requestId !== suggestionRequestId) return;
+            console.error("Erro ao buscar sugestões no Kitsu:", error);
+            closeAnimeSuggestions();
+            showMessage("Não foi possível buscar sugestões agora. Verifique sua conexão e tente novamente.", true);
+        }
+    }
+
+    animeSearchInput.addEventListener("input", () => {
+        clearAnimeSelection();
+        showMessage("");
+        closeAnimeSuggestions();
+        const term = animeSearchInput.value.trim();
+        const requestId = ++suggestionRequestId;
+        clearTimeout(suggestionTimer);
+        if (term.length < 2) return;
+        suggestionTimer = setTimeout(() => searchAnimeSuggestions(term, requestId), 350);
+    });
+
+    animeSearchInput.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeAnimeSuggestions();
+    });
+
+    document.addEventListener("click", event => {
+        if (!event.target.closest(".anime-picker-field")) closeAnimeSuggestions();
+    });
 
     // Converter dados do Supabase
     function mapAnime(row) {
@@ -671,6 +839,10 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         editingId = anime.id;
 
         form.elements.title.value = anime.title;
+        animeSearchInput.value = anime.title;
+        selectedAnime = { title: anime.title, id: null, poster: null, year: "" };
+        selectedAnimePreview.hidden = true;
+        submitButton.disabled = false;
         form.elements.totalEpisodes.value = anime.totalEpisodes;
         form.elements.watchedEpisodes.value = anime.watchedEpisodes;
         form.elements.status.value = anime.status;
@@ -687,6 +859,9 @@ ratingWrapper.append(ratingIcon, ratingSelect);
     function cancelEditing() {
         editingId = null;
         form.reset();
+        animeSearchInput.value = "";
+        clearAnimeSelection();
+        closeAnimeSuggestions();
 
         submitButton.textContent = "＋ Adicionar à coleção";
         cancelButton.hidden = true;
@@ -713,8 +888,19 @@ ratingWrapper.append(ratingIcon, ratingSelect);
         const watchedEpisodes = Number(form.elements.watchedEpisodes.value);
         const status = form.elements.status.value;
 
-        if (!title || title.length > 100) {
-            showMessage("Informe um título de até 100 caracteres.", true);
+        if (!title || title.length > 100 || !selectedAnime || normalizeTitle(title) !== normalizeTitle(selectedAnime.title)) {
+            showMessage("Escolha um anime entre as sugestões do Kitsu antes de cadastrar.", true);
+            return;
+        }
+
+        const duplicate = animes.some(anime =>
+            anime.userId === currentUserId
+            && anime.id !== editingId
+            && normalizeTitle(anime.title) === normalizeTitle(title)
+        );
+        if (duplicate) {
+            showMessage("Esta obra já está na sua biblioteca.", true);
+            submitButton.disabled = true;
             return;
         }
 
@@ -737,6 +923,8 @@ ratingWrapper.append(ratingIcon, ratingSelect);
             return;
         }
 
+        if (isSaving) return;
+        isSaving = true;
         submitButton.disabled = true;
 
         try {
@@ -789,7 +977,9 @@ ratingWrapper.append(ratingIcon, ratingSelect);
             showMessage("Não foi possível salvar: " + error.message, true);
 
         } finally {
-            submitButton.disabled = false;
+            isSaving = false;
+            submitButton.disabled = editingId === null && !selectedAnime;
+            if (selectedAnime && editingId === null) validateDuplicateSelection();
         }
     });
 

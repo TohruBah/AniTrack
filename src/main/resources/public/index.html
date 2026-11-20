@@ -373,16 +373,23 @@
 
                         <div class="form-grid">
 
-                            <label class="field field-full">
-                                Título do anime
-
+                            <div class="field field-full anime-picker-field">
+                                <label for="animeSearchInput">Título do anime</label>
                                 <input
-                                    name="title"
-                                    maxlength="100"
-                                    placeholder="Ex.: Demon Slayer"
+                                    id="animeSearchInput"
+                                    type="search"
+                                    placeholder="Digite para buscar no catálogo Kitsu..."
+                                    autocomplete="off"
+                                    aria-autocomplete="list"
+                                    aria-controls="animeSuggestions"
+                                    aria-expanded="false"
                                     required
                                 >
-                            </label>
+                                <input type="hidden" name="title" required>
+                                <div id="animeSuggestions" class="anime-suggestions" role="listbox" hidden></div>
+                                <div id="selectedAnimePreview" class="selected-anime-preview" hidden aria-live="polite"></div>
+                                <small class="field-hint">Selecione uma obra nas sugestões para preencher o título e a capa.</small>
+                            </div>
 
                             <label class="field">
                                 Total de episódios
