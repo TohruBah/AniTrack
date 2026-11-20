@@ -25,10 +25,16 @@
   }
 
   function showProfileView() {
+<<<<<<< HEAD
     // Garante que nenhuma outra página da aplicação permaneça visível.
     document.querySelectorAll(".main-content .page-view").forEach(view => {
       view.hidden = view !== profileView;
     });
+=======
+    $("#catalogView").hidden = true;
+    $("#statisticsView").hidden = true;
+    $("#addAnimeView").hidden = true;
+>>>>>>> origin/main
     profileView.hidden = false;
     document.querySelectorAll(".nav-item").forEach(item => item.classList.toggle("active", item === navButton));
     window.scrollTo({ top: 0, behavior: "smooth" });
