@@ -7,78 +7,50 @@
     const status = document.querySelector("#animeDetailsStatus");
     const content = document.querySelector("#animeDetailsContent");
     const backButton = document.querySelector("#animeDetailsBack");
-    const API = "https://kitsu.io/api/edge";
+    const API = "https://graphql.anilist.co";
     let previousView = null;
     let previousNav = null;
     let activeRequest = 0;
     let currentTitle = "";
     const translationCache = new Map();
 
-    function mapKitsuAnime(item, included = []) {
-        const attributes = item?.attributes || {};
-        const includedById = new Map(included.map(entry => [`${entry.type}:${entry.id}`, entry]));
-        const genreRefs = item?.relationships?.genres?.data || [];
-        const genres = genreRefs
-            .map(ref => includedById.get(`${ref.type}:${ref.id}`)?.attributes?.name)
-            .filter(Boolean);
-        const poster = attributes.posterImage || {};
-        const cover = attributes.coverImage || {};
-        const subtype = String(attributes.subtype || "").toLowerCase();
-        const formats = {
-            tv: "TV", "tv short": "TV_SHORT", movie: "MOVIE",
-            special: "SPECIAL", ova: "OVA", ona: "ONA"
-        };
-        const status = {
-            finished: "FINISHED", current: "RELEASING",
-            unreleased: "NOT_YET_RELEASED", tba: "NOT_YET_RELEASED"
-        };
-        const titles = attributes.titles || {};
-        const title = attributes.canonicalTitle || titles.en || titles.en_jp || titles.ja_jp || currentTitle;
-        return {
-            id: item.id,
-            title: { userPreferred: title, english: titles.en || title, romaji: titles.en_jp || title },
-            description: attributes.synopsis || "",
-            coverImage: { extraLarge: cover.large || cover.original || poster.large, large: poster.large || poster.original },
-            bannerImage: cover.original || cover.large || "",
-            genres,
-            format: formats[subtype] || "TV",
-            episodes: attributes.episodeCount,
-            duration: attributes.episodeLength,
-            status: status[String(attributes.status || "").toLowerCase()] || "",
-            season: "",
-            seasonYear: attributes.startDate ? Number(String(attributes.startDate).slice(0, 4)) : null,
-            averageScore: attributes.averageRating ? Math.round(Number(attributes.averageRating)) : null,
-            popularity: attributes.userCount || null,
-            studios: { nodes: [] },
-            relations: { edges: [] }
-        };
-    }
+    const detailsQuery = `
+      query ($search: String) {
+        Media(search: $search, type: ANIME) {
+          id
+          title { userPreferred romaji english native }
+          description(asHtml: false)
+          coverImage { extraLarge large }
+          bannerImage
+          genres
+          format
+          episodes
+          duration
+          status
+          season
+          seasonYear
+          averageScore
+          popularity
+          studios(isMain: true) { nodes { name } }
+          relations {
+            edges {
+              relationType(version: 2)
+              node {
+                id
+                type
+                title { userPreferred romaji english }
+                coverImage { medium large }
+                format
+                season
+                seasonYear
+              }
+            }
+          }
+        }
+      }`;
 
-    async function fetchAnimeDetails(title) {
-        const params = new URLSearchParams({
-            "filter[text]": title,
-            "page[limit]": "10",
-            include: "genres"
-        });
-        const response = await fetch(`${API}/anime?${params.toString()}`, {
-            headers: { Accept: "application/vnd.api+json" }
-        });
-        if (!response.ok) throw new Error(`Falha ao consultar o catálogo (${response.status}).`);
-        const payload = await response.json();
-        const items = (payload.data || []).filter(item => {
-            const subtype = String(item.attributes?.subtype || "").toLowerCase();
-            return ["tv", "tv short", "movie", "special", "ova", "ona"].includes(subtype);
-        });
-        if (!items.length) throw new Error("Anime não encontrado no catálogo.");
-        const normalized = title.toLocaleLowerCase("pt-BR").trim();
-        const selected = items.find(item => {
-            const attrs = item.attributes || {};
-            const candidates = [attrs.canonicalTitle, ...Object.values(attrs.titles || {})]
-                .filter(Boolean).map(value => String(value).toLocaleLowerCase("pt-BR").trim());
-            return candidates.includes(normalized);
-        }) || items[0];
-        return mapKitsuAnime(selected, payload.included || []);
-    }
+    // A página de detalhes aceita apenas formatos de anime.
+    const ALLOWED_FORMATS = new Set(["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"]);
 
     function escapeHtml(value) {
         return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -315,22 +287,34 @@
         content.replaceChildren();
 
         try {
-            const media = await fetchAnimeDetails(title);
+            const response = await fetch(API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                body: JSON.stringify({ query: detailsQuery, variables: { search: title } })
+            });
+            if (!response.ok) throw new Error(`Não foi possível consultar os dados (${response.status}).`);
+            const payload = await response.json();
+            if (payload.errors?.length) throw new Error(payload.errors[0].message || "Erro ao consultar o anime.");
+            const media = payload.data?.Media;
+            if (!media) throw new Error("Não encontramos informações para este anime.");
+            if (!ALLOWED_FORMATS.has(media.format)) {
+                throw new Error("O conteúdo encontrado não corresponde a um formato de anime permitido.");
+            }
             if (request !== activeRequest) return;
             await renderMedia(media, request);
         } catch (error) {
             if (request !== activeRequest) return;
             status.hidden = false;
             status.classList.add("is-error");
-            status.textContent = "Não foi possível encontrar as informações deste anime agora. Tente novamente em instantes.";
+            status.textContent = "Não foi possível carregar os detalhes agora. Verifique sua conexão e tente novamente.";
             content.hidden = false;
             const fallbackPoster = safeUrl(poster);
             content.innerHTML = `<div class="details-fallback">
                 ${fallbackPoster ? `<img src="${escapeHtml(fallbackPoster)}" alt="">` : ""}
-                <div><h1>${escapeHtml(title)}</h1><p>Não foi possível obter os dados completos agora. Tente novamente em instantes.</p>
+                <div><h1>${escapeHtml(title)}</h1><p>Não foi possível obter os dados completos agora. Verifique sua conexão e tente novamente.</p>
                 ${format ? `<span>${escapeHtml(format)}</span>` : ""}</div>
               </div>`;
-            console.error("AniTrack — falha ao carregar detalhes:", error);
+            console.error("AniTrack — detalhes do anime:", error);
         }
     }
 
