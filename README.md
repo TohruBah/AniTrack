@@ -39,3 +39,6 @@ Banco local: `data/anitrack.db`.
 - **Fuso horário:** o calendário oferece horário local do navegador ou Tempo Universal Coordenado (UTC).
 
 Os dados externos são carregados no navegador. A ausência de informações na API não impede o acesso ao restante do catálogo; a interface apresenta uma mensagem de erro e permite tentar novamente ao reabrir a tela.
+### Filtro de conteúdo do calendário
+
+O calendário exibe exclusivamente obras do tipo anime: séries (TV e TV curta), filmes, especiais, OVAs e ONAs. Mangás, doramas, videoclipes musicais e outros formatos são excluídos.

@@ -12,6 +12,7 @@
     let previousNav = null;
     let activeRequest = 0;
     let currentTitle = "";
+    const translationCache = new Map();
 
     const detailsQuery = `
       query ($search: String) {
@@ -70,6 +71,44 @@
             .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
             .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
             .trim();
+    }
+
+    async function translateToPortuguese(value) {
+        const source = plainDescription(value);
+        if (!source || source === "Sinopse não informada.") return source;
+        if (translationCache.has(source)) return translationCache.get(source);
+
+        // Divide textos extensos para evitar limites da API pública de tradução.
+        const chunks = [];
+        let remaining = source;
+        while (remaining.length > 4500) {
+            let cut = remaining.lastIndexOf(". ", 4500);
+            if (cut < 1800) cut = remaining.lastIndexOf(" ", 4500);
+            if (cut < 1) cut = 4500;
+            chunks.push(remaining.slice(0, cut + 1));
+            remaining = remaining.slice(cut + 1).trim();
+        }
+        if (remaining) chunks.push(remaining);
+
+        try {
+            const translated = [];
+            for (const chunk of chunks) {
+                const url = new URL("https://translate.googleapis.com/translate_a/single");
+                url.search = new URLSearchParams({ client: "gtx", sl: "auto", tl: "pt", dt: "t", q: chunk }).toString();
+                const response = await fetch(url.toString());
+                if (!response.ok) throw new Error(`Serviço de tradução indisponível (${response.status}).`);
+                const payload = await response.json();
+                const text = (payload?.[0] || []).map(part => part?.[0] || "").join("");
+                if (!text) throw new Error("A tradução não retornou texto.");
+                translated.push(text);
+            }
+            const result = translated.join(" ").trim();
+            translationCache.set(source, result);
+            return result;
+        } catch (error) {
+            console.warn("AniTrack — tradução da sinopse indisponível:", error);
+            return "A sinopse original está disponível em outro idioma. Não foi possível realizar a tradução automática neste momento.";
+        }
     }
 
     function titleOf(media) {
@@ -171,7 +210,10 @@
         const title = titleOf(media);
         const cover = safeUrl(media.coverImage?.extraLarge || media.coverImage?.large);
         const banner = safeUrl(media.bannerImage);
-        const collectionEntry = await loadCollectionEntry(title);
+        const [collectionEntry, translatedDescription] = await Promise.all([
+            loadCollectionEntry(title),
+            translateToPortuguese(media.description)
+        ]);
         if (request !== activeRequest) return;
 
         const studios = (media.studios?.nodes || []).map(studio => studio.name).filter(Boolean);
@@ -213,7 +255,7 @@
           <div class="anime-detail-body">
             <section class="anime-detail-main">
               <div class="details-section-heading"><span class="eyebrow">SOBRE A OBRA</span><h2>Sinopse</h2></div>
-              <p class="anime-detail-description">${escapeHtml(plainDescription(media.description))}</p>
+              <p class="anime-detail-description">${escapeHtml(translatedDescription)}</p>
               <div class="details-section-heading related-heading"><span class="eyebrow">EXPANDA SUA JORNADA</span><h2>Obras relacionadas</h2></div>
               ${relationHtml}
             </section>

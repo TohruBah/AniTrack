@@ -27,6 +27,16 @@
     let allAnime = [];
     let requestNumber = 0;
     let searchTimer = null;
+    let activeSearchTerm = "";
+
+    // A Central de Descobertas aceita somente formatos de animação japonesa.
+    // O endpoint /anime do Kitsu já exclui mangás e doramas; esta lista também
+    // impede videoclipes e tipos desconhecidos de aparecerem na interface.
+    const ALLOWED_SUBTYPES = new Set(["tv", "tv short", "movie", "special", "ova", "ona"]);
+
+    function isAnimeFormat(item) {
+        return ALLOWED_SUBTYPES.has(String(item?.subtype || "").trim().toLowerCase());
+    }
 
     function setActiveNav() {
         document.querySelectorAll(".nav-item").forEach(item => {
@@ -68,7 +78,7 @@
             const rel = item.relationships?.genres?.data || [];
             const genres = rel.map(ref => included.get(`${ref.type}:${ref.id}`)?.attributes?.name).filter(Boolean);
             return { id: item.id, ...item.attributes, genres };
-        });
+        }).filter(isAnimeFormat);
     }
 
     function paramsForCategory() {
@@ -95,7 +105,8 @@
         const formats = {
             TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
             SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical",
-            "TV Short": "Série curta de TV", Movie: "Filme", Special: "Especial", Music: "Videoclipe musical"
+            "TV Short": "Série curta de TV", Movie: "Filme de anime", Special: "Especial de anime",
+            OVA: "OVA", ONA: "ONA", Music: "Videoclipe musical"
         };
         return formats[value] || value || "Anime";
     }
@@ -173,6 +184,7 @@
     }
 
     async function loadCategory() {
+        activeSearchTerm = "";
         const thisRequest = ++requestNumber;
         heading.textContent = labels[category];
         status.hidden = false;
@@ -183,7 +195,7 @@
         try {
             const result = await fetchAnime(paramsForCategory());
             if (thisRequest !== requestNumber) return;
-            allAnime = result;
+            allAnime = result.filter(isAnimeFormat);
             populateGenres();
             render();
         } catch (error) {
@@ -194,6 +206,45 @@
             status.textContent = "Não foi possível carregar os animes. Verifique sua conexão e tente novamente em instantes.";
             resultCount.textContent = "";
             console.error("AniTrack — Central de descobertas:", error);
+        }
+    }
+
+    async function searchAnime(term) {
+        const normalizedTerm = term.trim();
+        if (!normalizedTerm) {
+            loadCategory();
+            return;
+        }
+
+        const thisRequest = ++requestNumber;
+        activeSearchTerm = normalizedTerm;
+        heading.textContent = "Resultados da busca";
+        status.hidden = false;
+        status.classList.remove("is-error");
+        status.textContent = "Pesquisando somente animes e filmes de anime...";
+        grid.replaceChildren();
+        resultCount.textContent = "";
+
+        try {
+            const result = await fetchAnime({
+                "filter[text]": normalizedTerm,
+                "page[limit]": "20",
+                "include": "genres",
+                sort: "-userCount"
+            });
+            if (thisRequest !== requestNumber) return;
+            allAnime = result.filter(isAnimeFormat);
+            populateGenres();
+            render();
+        } catch (error) {
+            if (thisRequest !== requestNumber) return;
+            allAnime = [];
+            grid.replaceChildren();
+            status.hidden = false;
+            status.classList.add("is-error");
+            status.textContent = "Não foi possível pesquisar animes agora. Verifique sua conexão e tente novamente.";
+            resultCount.textContent = "";
+            console.error("AniTrack — busca de animes:", error);
         }
     }
 
@@ -211,7 +262,12 @@
 
     search.addEventListener("input", () => {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(render, 180);
+        const term = search.value.trim();
+        searchTimer = setTimeout(() => {
+            if (term.length >= 2) searchAnime(term);
+            else if (!term && activeSearchTerm) loadCategory();
+            else render();
+        }, 350);
     });
     genreSelect.addEventListener("change", render);
 
