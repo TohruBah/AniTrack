@@ -196,7 +196,7 @@ function openAddScreen() {
             .replace(/[^a-z0-9]/g, "");
     }
 
-    // Buscar capas na Kitsu
+    // Buscar capas das obras
     async function findAnimeCover(title) {
         const key = normalizeTitle(title);
 
@@ -266,17 +266,17 @@ function openAddScreen() {
         }
     }
 
-    // Exibe o total informado pelo Kitsu sem permitir edição manual.
+    // Exibe o total de episódios sem permitir edição manual.
     function displayTotalEpisodes(count) {
         const validCount = Number.isInteger(count) && count > 0 ? count : null;
         form.elements.totalEpisodes.value = validCount ?? "";
         totalEpisodesField.hidden = false;
         totalEpisodesDisplay.textContent = validCount
             ? `${validCount} episódios`
-            : "Quantidade de episódios não informada pelo Kitsu";
+            : "Quantidade de episódios não informada";
     }
 
-    // Busca de sugestões Kitsu para selecionar uma obra válida.
+    // Busca sugestões para selecionar uma obra válida.
     function clearAnimeSelection() {
         selectedAnime = null;
         form.elements.title.value = "";
@@ -372,7 +372,7 @@ function openAddScreen() {
             const response = await fetch(url, {
                 headers: { Accept: "application/vnd.api+json" }
             });
-            if (!response.ok) throw new Error(`Kitsu respondeu ${response.status}`);
+            if (!response.ok) throw new Error(`O serviço de consulta respondeu ${response.status}`);
             const result = await response.json();
             if (requestId !== suggestionRequestId) return;
 
@@ -427,7 +427,7 @@ function openAddScreen() {
             animeSearchInput.setAttribute("aria-expanded", "true");
         } catch (error) {
             if (requestId !== suggestionRequestId) return;
-            console.error("Erro ao buscar sugestões no Kitsu:", error);
+            console.error("Erro ao buscar sugestões:", error);
             closeAnimeSuggestions();
             showMessage("Não foi possível buscar sugestões agora. Verifique sua conexão e tente novamente.", true);
         }
@@ -1009,7 +1009,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const status = form.elements.status.value;
 
         if (!title || title.length > 100 || !selectedAnime || normalizeTitle(title) !== normalizeTitle(selectedAnime.title)) {
-            showMessage("Escolha um anime entre as sugestões do Kitsu antes de cadastrar.", true);
+            showMessage("Escolha um anime entre as sugestões antes de cadastrar.", true);
             return;
         }
 
@@ -1026,7 +1026,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         if (!Number.isInteger(totalEpisodes) || totalEpisodes <= 0
             || totalEpisodes !== selectedAnime.episodeCount) {
-            showMessage("O Kitsu não informou um total válido de episódios para esta obra. Não é possível cadastrar sem essa informação.", true);
+            showMessage("Não foi possível obter um total válido de episódios para esta obra. Confira as informações antes de cadastrar.", true);
             return;
         }
 
@@ -1061,7 +1061,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
                         status,
                         // Durante uma edição comum, selectedAnime.id é null.
                         // Nesse caso, preservamos o kitsu_id e os metadados já salvos.
-                        // Só substituímos esses campos quando uma obra válida do Kitsu
+                        // Só substituímos esses campos quando uma obra válida do catálogo
                         // foi selecionada explicitamente no formulário.
                         ...(selectedAnime?.id ? {
                             kitsu_id: String(selectedAnime.id),

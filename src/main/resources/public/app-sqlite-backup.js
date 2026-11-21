@@ -48,7 +48,7 @@ function normalizeTitle(title) {
         .replace(/[^a-z0-9]/g, "");
 }
 
-// Buscar capa na Kitsu API
+// Buscar capa da obra
 async function findAnimeCover(title) {
     const cacheKey = normalizeTitle(title);
 

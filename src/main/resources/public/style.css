@@ -1644,7 +1644,7 @@ select:focus {
 }
 
 
-/* Seletor de obras Kitsu */
+/* Seletor de obras */
 .anime-picker-field { position: relative; }
 .anime-picker-field > label { display:block; color:#d8d5eb; font-size:12px; font-weight:600; }
 .field-hint { display:block; margin-top:7px; color:var(--text-muted,#aaa4c4); font-size:11px; }

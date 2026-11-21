@@ -31,7 +31,6 @@
           seasonYear
           averageScore
           popularity
-          siteUrl
           studios(isMain: true) { nodes { name } }
           relations {
             edges {
@@ -54,13 +53,6 @@
         return String(value ?? "").replace(/[&<>"']/g, char => ({
             "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
         })[char]);
-    }
-
-    function safeUrl(value) {
-        try {
-            const url = new URL(value);
-            return ["https:", "http:"].includes(url.protocol) ? url.href : "";
-        } catch { return ""; }
     }
 
     function plainDescription(value) {
@@ -269,13 +261,11 @@
                   <div><dt>Formato</dt><dd>${escapeHtml(formatPtBr(media.format))}</dd></div>
                   <div><dt>Temporada</dt><dd>${escapeHtml(media.season && media.seasonYear ? `${seasonPtBr(media.season)} de ${media.seasonYear}` : media.seasonYear || "Não informada")}</dd></div>
                   <div><dt>Estúdio principal</dt><dd>${escapeHtml(studios.join(", ") || "Não informado")}</dd></div>
-                  <div><dt>Nota AniList</dt><dd>${Number.isFinite(score) && score > 0 ? `${(score / 10).toFixed(1)} / 10` : "Não informada"}</dd></div>
+                  <div><dt>Avaliação</dt><dd>${Number.isFinite(score) && score > 0 ? `${(score / 10).toFixed(1)} / 10` : "Não informada"}</dd></div>
                 </dl>
-                ${safeUrl(media.siteUrl) ? `<a class="details-source-link" href="${escapeHtml(safeUrl(media.siteUrl))}" target="_blank" rel="noopener noreferrer">Ver página no AniList ↗</a>` : ""}
               </section>
             </aside>
           </div>
-          <p class="details-source-note">Informações externas fornecidas pelo AniList. Alguns campos podem estar indisponíveis ou desatualizados.</p>
         `;
         content.hidden = false;
         status.hidden = true;
@@ -299,7 +289,7 @@
                 headers: { "Content-Type": "application/json", Accept: "application/json" },
                 body: JSON.stringify({ query: detailsQuery, variables: { search: title } })
             });
-            if (!response.ok) throw new Error(`O AniList respondeu com o código ${response.status}.`);
+            if (!response.ok) throw new Error(`Não foi possível consultar os dados (${response.status}).`);
             const payload = await response.json();
             if (payload.errors?.length) throw new Error(payload.errors[0].message || "Erro ao consultar o anime.");
             const media = payload.data?.Media;

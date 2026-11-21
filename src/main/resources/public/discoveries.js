@@ -30,8 +30,8 @@
     let activeSearchTerm = "";
 
     // A Central de Descobertas aceita somente formatos de animação japonesa.
-    // O endpoint /anime do Kitsu já exclui mangás e doramas; esta lista também
-    // impede videoclipes e tipos desconhecidos de aparecerem na interface.
+    // A lista de formatos permitidos impede mangás, doramas, videoclipes e
+    // tipos desconhecidos de aparecerem na interface.
     const ALLOWED_SUBTYPES = new Set(["tv", "tv short", "movie", "special", "ova", "ona"]);
 
     function isAnimeFormat(item) {
