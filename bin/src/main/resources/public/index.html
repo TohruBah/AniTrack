@@ -23,6 +23,7 @@
 <!-- Personalizações do layout -->
 <link rel="stylesheet" href="/CSS/layout.css">
 <link rel="stylesheet" href="/CSS/themes.css">
+<link rel="stylesheet" href="/CSS/discoveries.css">
 </head>
 
 <body>
@@ -184,6 +185,11 @@
                     >
                         <span class="nav-icon">▥</span>
                         Estatísticas
+                    </button>
+
+                    <button type="button" class="nav-item" data-view="discoveries">
+                        <span class="nav-icon">✦</span>
+                        Central de descobertas
                     </button>
 
                     <button type="button" class="nav-item" id="profileNavButton">
@@ -350,6 +356,43 @@
 
                 </section>
 
+            </section>
+
+            <!-- CENTRAL DE DESCOBERTAS -->
+            <section id="discoveriesView" class="page-view discoveries-page" hidden>
+                <header class="page-header">
+                    <div>
+                        <span class="eyebrow">EXPLORE O UNIVERSO DOS ANIMES</span>
+                        <h1>Central de descobertas</h1>
+                        <p>Encontre sua próxima história favorita com os dados da Kitsu.</p>
+                    </div>
+                    <a class="discoveries-source" href="https://kitsu.io/anime" target="_blank" rel="noopener noreferrer">Explorar na Kitsu ↗</a>
+                </header>
+
+                <div class="discoveries-search-row">
+                    <label class="discoveries-search" for="discoveriesSearch">
+                        <span aria-hidden="true">⌕</span>
+                        <input id="discoveriesSearch" type="search" placeholder="Buscar um anime..." autocomplete="off">
+                    </label>
+                    <label class="discoveries-genre-label" for="discoveriesGenre">Gênero</label>
+                    <select id="discoveriesGenre" class="discoveries-genre-select">
+                        <option value="">Todos os gêneros</option>
+                    </select>
+                </div>
+
+                <div class="discoveries-tabs" role="tablist" aria-label="Categorias de descoberta">
+                    <button type="button" class="discovery-tab is-active" data-discovery-category="trending" role="tab" aria-selected="true">Em alta</button>
+                    <button type="button" class="discovery-tab" data-discovery-category="popular" role="tab" aria-selected="false">Populares</button>
+                    <button type="button" class="discovery-tab" data-discovery-category="top-rated" role="tab" aria-selected="false">Mais bem avaliados</button>
+                    <button type="button" class="discovery-tab" data-discovery-category="recent" role="tab" aria-selected="false">Lançamentos recentes</button>
+                </div>
+
+                <div class="discoveries-section-heading">
+                    <div><span class="eyebrow">SELEÇÃO KITSU</span><h2 id="discoveriesHeading">Animes em alta</h2></div>
+                    <span id="discoveriesResultCount" class="discoveries-result-count"></span>
+                </div>
+                <div id="discoveriesStatus" class="discoveries-status" role="status" aria-live="polite">Carregando recomendações...</div>
+                <div id="discoveriesGrid" class="discoveries-grid"></div>
             </section>
 
             <!-- PÁGINA DE ESTATÍSTICAS -->
@@ -691,6 +734,7 @@
     <script src="/catalog.js"></script>
     <script src="/theme.js"></script>
     <script src="/profile.js"></script>
+    <script src="/discoveries.js"></script>
 
 </body>
 </html>
