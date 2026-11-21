@@ -1018,7 +1018,11 @@ document.querySelectorAll(".nav-item").forEach(button => {
                         total_episodes: totalEpisodes,
                         watched_episodes: watchedEpisodes,
                         status,
-                        ...(selectedAnime ? {
+                        // Durante uma edição comum, selectedAnime.id é null.
+                        // Nesse caso, preservamos o kitsu_id e os metadados já salvos.
+                        // Só substituímos esses campos quando uma obra válida do Kitsu
+                        // foi selecionada explicitamente no formulário.
+                        ...(selectedAnime?.id ? {
                             kitsu_id: String(selectedAnime.id),
                             genres: selectedAnime.genres || [],
                             format: selectedAnime.format || null,
