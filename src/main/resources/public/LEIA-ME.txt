@@ -1,4 +1,4 @@
-INSTALACAO DOS FUNDOS DOS TEMAS ANITRACK
+INSTALAÇÃO DOS PLANOS DE FUNDO DOS TEMAS ANITRACK
 
 Copie a pasta CSS/themes.css para a pasta CSS do seu projeto, substituindo o arquivo atual.
 Copie os dois arquivos da pasta images para a pasta images do projeto.

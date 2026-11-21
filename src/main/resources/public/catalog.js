@@ -137,6 +137,8 @@ function openCatalog() {
     statisticsView.hidden = true;
     addAnimeView.hidden = true;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -146,6 +148,8 @@ function openStatistics() {
     statisticsView.hidden = false;
     addAnimeView.hidden = true;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -155,6 +159,8 @@ function openAddScreen() {
     statisticsView.hidden = true;
     addAnimeView.hidden = false;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -190,7 +196,7 @@ function openAddScreen() {
             .replace(/[^a-z0-9]/g, "");
     }
 
-    // Buscar capas na Kitsu
+    // Buscar capas das obras
     async function findAnimeCover(title) {
         const key = normalizeTitle(title);
 
@@ -260,17 +266,17 @@ function openAddScreen() {
         }
     }
 
-    // Exibe o total informado pelo Kitsu sem permitir edição manual.
+    // Exibe o total de episódios sem permitir edição manual.
     function displayTotalEpisodes(count) {
         const validCount = Number.isInteger(count) && count > 0 ? count : null;
         form.elements.totalEpisodes.value = validCount ?? "";
         totalEpisodesField.hidden = false;
         totalEpisodesDisplay.textContent = validCount
             ? `${validCount} episódios`
-            : "Quantidade de episódios não informada pelo Kitsu";
+            : "Quantidade de episódios não informada";
     }
 
-    // Busca de sugestões Kitsu para selecionar uma obra válida.
+    // Busca sugestões para selecionar uma obra válida.
     function clearAnimeSelection() {
         selectedAnime = null;
         form.elements.title.value = "";
@@ -366,7 +372,7 @@ function openAddScreen() {
             const response = await fetch(url, {
                 headers: { Accept: "application/vnd.api+json" }
             });
-            if (!response.ok) throw new Error(`Kitsu respondeu ${response.status}`);
+            if (!response.ok) throw new Error(`O serviço de consulta respondeu ${response.status}`);
             const result = await response.json();
             if (requestId !== suggestionRequestId) return;
 
@@ -421,7 +427,7 @@ function openAddScreen() {
             animeSearchInput.setAttribute("aria-expanded", "true");
         } catch (error) {
             if (requestId !== suggestionRequestId) return;
-            console.error("Erro ao buscar sugestões no Kitsu:", error);
+            console.error("Erro ao buscar sugestões:", error);
             closeAnimeSuggestions();
             showMessage("Não foi possível buscar sugestões agora. Verifique sua conexão e tente novamente.", true);
         }
@@ -445,6 +451,28 @@ function openAddScreen() {
     document.addEventListener("click", event => {
         if (!event.target.closest(".anime-picker-field")) closeAnimeSuggestions();
     });
+
+    // Traduzir formatos recebidos das fontes externas para português do Brasil.
+    function formatPtBr(value) {
+        const formats = {
+            TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
+            SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical",
+            "TV Short": "Série curta de TV", Movie: "Filme", Special: "Especial", Music: "Videoclipe musical"
+        };
+        return formats[value] || value || "";
+    }
+
+    function generoPtBr(value) {
+        const genres = {
+            Action: "Ação", Adventure: "Aventura", Comedy: "Comédia", Drama: "Drama",
+            Fantasy: "Fantasia", Horror: "Terror", Mystery: "Mistério", Romance: "Romance",
+            "Sci-Fi": "Ficção científica", "Slice of Life": "Cotidiano", Sports: "Esportes",
+            Supernatural: "Sobrenatural", Thriller: "Suspense", Psychological: "Psicológico",
+            Mecha: "Robôs gigantes", Music: "Música", Historical: "Histórico",
+            Ecchi: "Ecchi", "Mahou Shoujo": "Garotas mágicas", Hentai: "Hentai"
+        };
+        return genres[value] || value;
+    }
 
     // Converter dados do Supabase
     function mapAnime(row) {
@@ -601,7 +629,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
             showMessage(
-                "Não foi possível carregar o catálogo: " + error.message,
+                "Não foi possível carregar o catálogo. Verifique sua conexão e tente novamente.",
                 true
             );
         }
@@ -615,7 +643,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const genres = [...new Set(animes.flatMap(a => a.genres || []))].sort((a,b) => a.localeCompare(b, "pt-BR"));
         const formats = [...new Set(animes.map(a => a.format).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
         filterGenre.replaceChildren(new Option("Todos os gêneros", ""));
-        genres.forEach(value => filterGenre.add(new Option(value, value)));
+        genres.forEach(value => filterGenre.add(new Option(generoPtBr(value), value)));
         filterFormat.replaceChildren(new Option("Todos os formatos", ""));
         formats.forEach(value => filterFormat.add(new Option(value, value)));
         filterGenre.value = genres.includes(currentGenre) ? currentGenre : "";
@@ -709,12 +737,12 @@ document.querySelectorAll(".nav-item").forEach(button => {
             meta.className = "anime-card-meta";
             if (anime.format) {
                 const format = document.createElement("span");
-                format.textContent = anime.format.toUpperCase();
+                format.textContent = formatPtBr(anime.format);
                 meta.append(format);
             }
             (anime.genres || []).slice(0, 2).forEach(genreName => {
                 const genre = document.createElement("span");
-                genre.textContent = genreName;
+                genre.textContent = generoPtBr(genreName);
                 meta.append(genre);
             });
             const details = document.createElement("p");
@@ -756,6 +784,16 @@ document.querySelectorAll(".nav-item").forEach(button => {
                 sharedLabel.textContent = "Somente visualização";
                 actions.append(sharedLabel);
             }
+
+            const detailsButton = document.createElement("button");
+            detailsButton.type = "button";
+            detailsButton.className = "anime-details-button";
+            detailsButton.textContent = "Detalhes";
+            detailsButton.dataset.animeDetail = "true";
+            detailsButton.dataset.animeTitle = anime.title;
+            detailsButton.dataset.animePoster = anime.posterUrl || "";
+            detailsButton.dataset.animeFormat = anime.format || "";
+            actions.append(detailsButton);
 
             item.append(coverContainer, info, actions);
             list.append(item);
@@ -810,7 +848,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível atualizar o favorito: " + error.message, true);
+            showMessage("Não foi possível atualizar o favorito. Tente novamente.", true);
         }
     }
 
@@ -834,7 +872,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível atualizar a avaliação: " + error.message, true);
+            showMessage("Não foi possível atualizar a avaliação. Tente novamente.", true);
         }
     }
 
@@ -908,7 +946,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível excluir o anime: " + error.message, true);
+            showMessage("Não foi possível excluir o anime. Tente novamente.", true);
         }
     }
 
@@ -971,7 +1009,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const status = form.elements.status.value;
 
         if (!title || title.length > 100 || !selectedAnime || normalizeTitle(title) !== normalizeTitle(selectedAnime.title)) {
-            showMessage("Escolha um anime entre as sugestões do Kitsu antes de cadastrar.", true);
+            showMessage("Escolha um anime entre as sugestões antes de cadastrar.", true);
             return;
         }
 
@@ -988,7 +1026,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         if (!Number.isInteger(totalEpisodes) || totalEpisodes <= 0
             || totalEpisodes !== selectedAnime.episodeCount) {
-            showMessage("O Kitsu não informou um total válido de episódios para esta obra. Não é possível cadastrar sem essa informação.", true);
+            showMessage("Não foi possível obter um total válido de episódios para esta obra. Confira as informações antes de cadastrar.", true);
             return;
         }
 
@@ -1023,7 +1061,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
                         status,
                         // Durante uma edição comum, selectedAnime.id é null.
                         // Nesse caso, preservamos o kitsu_id e os metadados já salvos.
-                        // Só substituímos esses campos quando uma obra válida do Kitsu
+                        // Só substituímos esses campos quando uma obra válida do catálogo
                         // foi selecionada explicitamente no formulário.
                         ...(selectedAnime?.id ? {
                             kitsu_id: String(selectedAnime.id),
@@ -1071,7 +1109,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível salvar: " + error.message, true);
+            showMessage("Não foi possível salvar as alterações. Verifique os dados e tente novamente.", true);
 
         } finally {
             isSaving = false;
@@ -1088,7 +1126,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
-            showMessage("Erro ao verificar sessão: " + error.message, true);
+            showMessage("Não foi possível verificar sua sessão. Entre novamente.", true);
             return;
         }
 
