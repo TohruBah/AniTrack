@@ -91,6 +91,27 @@
         return /^\d{4}$/.test(year) ? year : "Ano não informado";
     }
 
+    function formatPtBr(value) {
+        const formats = {
+            TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
+            SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical",
+            "TV Short": "Série curta de TV", Movie: "Filme", Special: "Especial", Music: "Videoclipe musical"
+        };
+        return formats[value] || value || "Anime";
+    }
+
+    function generoPtBr(value) {
+        const genres = {
+            Action: "Ação", Adventure: "Aventura", Comedy: "Comédia", Drama: "Drama",
+            Fantasy: "Fantasia", Horror: "Terror", Mystery: "Mistério", Romance: "Romance",
+            "Sci-Fi": "Ficção científica", "Slice of Life": "Cotidiano", Sports: "Esportes",
+            Supernatural: "Sobrenatural", Thriller: "Suspense", Psychological: "Psicológico",
+            Mecha: "Robôs gigantes", Music: "Música", Historical: "Histórico",
+            Ecchi: "Ecchi", "Mahou Shoujo": "Garotas mágicas", Hentai: "Hentai"
+        };
+        return genres[value] || value;
+    }
+
     function safeText(value) {
         return String(value ?? "").replace(/[&<>"']/g, char => ({
             "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -108,7 +129,7 @@
             return matchesTerm && matchesGenre;
         });
 
-        resultCount.textContent = `${filtered.length} resultado(s)`;
+        resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
         grid.replaceChildren();
         status.hidden = filtered.length > 0;
         status.classList.remove("is-error");
@@ -119,7 +140,7 @@
             const poster = anime.posterImage?.large || anime.posterImage?.medium || anime.posterImage?.original || "";
             const rating = Number(anime.averageRating);
             const ratingText = Number.isFinite(rating) ? `${(rating / 10).toFixed(1)} ★` : "Sem nota";
-            const genres = anime.genres.slice(0, 3).join(" · ");
+            const genres = anime.genres.slice(0, 3).map(generoPtBr).join(" · ");
             const card = document.createElement("article");
             card.className = "discovery-card";
             card.dataset.animeDetail = "true";
@@ -136,7 +157,7 @@
                 </div>
                 <div class="discovery-card-body">
                     <h3 class="discovery-card-title" title="${safeText(title)}">${safeText(title)}</h3>
-                    <div class="discovery-card-meta"><span>${safeText(anime.subtype || "Anime")}</span><span>•</span><span>${safeText(formatYear(anime.startDate))}</span></div>
+                    <div class="discovery-card-meta"><span>${safeText(formatPtBr(anime.subtype))}</span><span>•</span><span>${safeText(formatYear(anime.startDate))}</span></div>
                     ${genres ? `<div class="discovery-card-genres">${safeText(genres)}</div>` : ""}
                 </div>`;
             grid.append(card);
@@ -147,7 +168,7 @@
         const genres = [...new Set(allAnime.flatMap(anime => anime.genres))].sort((a, b) => a.localeCompare(b, "pt-BR"));
         const selected = genreSelect.value;
         genreSelect.replaceChildren(new Option("Todos os gêneros", ""));
-        genres.forEach(genre => genreSelect.add(new Option(genre, genre)));
+        genres.forEach(genre => genreSelect.add(new Option(generoPtBr(genre), genre)));
         if (genres.includes(selected)) genreSelect.value = selected;
     }
 
@@ -170,7 +191,7 @@
             allAnime = [];
             status.hidden = false;
             status.classList.add("is-error");
-            status.textContent = `Não foi possível carregar os animes. ${error.message} Tente novamente em instantes.`;
+            status.textContent = "Não foi possível carregar os animes. Verifique sua conexão e tente novamente em instantes.";
             resultCount.textContent = "";
             console.error("AniTrack — Central de descobertas:", error);
         }

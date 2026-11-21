@@ -76,6 +76,42 @@
         return media?.title?.userPreferred || media?.title?.english || media?.title?.romaji || currentTitle;
     }
 
+    function formatPtBr(value) {
+        const formats = {
+            TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
+            SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical"
+        };
+        return formats[value] || value || "Não informado";
+    }
+
+    function generoPtBr(value) {
+        const genres = {
+            Action: "Ação", Adventure: "Aventura", Comedy: "Comédia", Drama: "Drama",
+            Fantasy: "Fantasia", Horror: "Terror", Mystery: "Mistério", Romance: "Romance",
+            "Sci-Fi": "Ficção científica", "Slice of Life": "Cotidiano", Sports: "Esportes",
+            Supernatural: "Sobrenatural", Thriller: "Suspense", Psychological: "Psicológico",
+            Mecha: "Robôs gigantes", Music: "Música", Historical: "Histórico",
+            Ecchi: "Ecchi", "Mahou Shoujo": "Garotas mágicas", Hentai: "Hentai"
+        };
+        return genres[value] || value;
+    }
+
+    function seasonPtBr(value) {
+        const seasons = { WINTER: "Inverno", SPRING: "Primavera", SUMMER: "Verão", FALL: "Outono" };
+        return seasons[value] || value || "";
+    }
+
+    function relationPtBr(value) {
+        const relations = {
+            PREQUEL: "História anterior", SEQUEL: "Continuação", PARENT: "Obra principal",
+            SIDE_STORY: "História paralela", CHARACTER: "Personagens relacionados",
+            SUMMARY: "Resumo", ALTERNATIVE: "Versão alternativa", SPIN_OFF: "Derivação",
+            ADAPTATION: "Adaptação", SOURCE: "Obra original", COMPILATION: "Compilação",
+            CONTAINS: "Contém", OTHER: "Outra relação"
+        };
+        return relations[value] || "Obra relacionada";
+    }
+
     function showPage() {
         document.querySelectorAll(".main-content .page-view").forEach(page => {
             page.hidden = page !== view;
@@ -104,9 +140,9 @@
             const image = safeUrl(item.coverImage?.large || item.coverImage?.medium);
             return `<button type="button" class="details-related-card" data-anime-detail="true"
                 data-anime-title="${escapeHtml(title)}" data-anime-poster="${escapeHtml(image)}"
-                data-anime-format="${escapeHtml(item.format || "Anime")}">
+                data-anime-format="${escapeHtml(formatPtBr(item.format))}">
                 ${image ? `<img src="${escapeHtml(image)}" alt="" loading="lazy">` : '<span class="details-related-placeholder">✦</span>'}
-                <span><strong>${escapeHtml(title)}</strong><small>${escapeHtml((edge.relationType || "RELATED").replace(/_/g, " "))}</small></span>
+                <span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(relationPtBr(edge.relationType))}</small></span>
             </button>`;
         }).join("")}</div>`;
     }
@@ -139,10 +175,14 @@
         if (request !== activeRequest) return;
 
         const studios = (media.studios?.nodes || []).map(studio => studio.name).filter(Boolean);
+        const airingStatus = {
+            FINISHED: "Finalizado", RELEASING: "Em lançamento",
+            NOT_YET_RELEASED: "Ainda não lançado", CANCELLED: "Cancelado", HIATUS: "Em pausa"
+        };
         const meta = [
-            media.format,
-            media.season && media.seasonYear ? `${media.season} ${media.seasonYear}` : media.seasonYear,
-            media.status?.replace(/_/g, " ")
+            formatPtBr(media.format),
+            media.season && media.seasonYear ? `${seasonPtBr(media.season)} de ${media.seasonYear}` : media.seasonYear,
+            airingStatus[media.status] || "Situação não informada"
         ].filter(Boolean);
         const score = Number(media.averageScore);
         const relationHtml = renderRelations(media);
@@ -166,7 +206,7 @@
                 <span class="eyebrow">DETALHES DO ANIME</span>
                 <h1>${escapeHtml(title)}</h1>
                 <p class="anime-detail-meta">${meta.map(escapeHtml).join(" · ") || "Informações gerais"}</p>
-                <div class="anime-detail-tags">${(media.genres || []).map(genre => `<span>${escapeHtml(genre)}</span>`).join("")}</div>
+                <div class="anime-detail-tags">${(media.genres || []).map(genre => `<span>${escapeHtml(generoPtBr(genre))}</span>`).join("")}</div>
               </div>
             </div>
           </header>
@@ -184,8 +224,8 @@
                 <dl>
                   <div><dt>Episódios</dt><dd>${escapeHtml(media.episodes ?? "Não informado")}</dd></div>
                   <div><dt>Duração</dt><dd>${media.duration ? `${escapeHtml(media.duration)} min` : "Não informada"}</dd></div>
-                  <div><dt>Formato</dt><dd>${escapeHtml(media.format || "Não informado")}</dd></div>
-                  <div><dt>Temporada</dt><dd>${escapeHtml(media.season && media.seasonYear ? `${media.season} ${media.seasonYear}` : media.seasonYear || "Não informada")}</dd></div>
+                  <div><dt>Formato</dt><dd>${escapeHtml(formatPtBr(media.format))}</dd></div>
+                  <div><dt>Temporada</dt><dd>${escapeHtml(media.season && media.seasonYear ? `${seasonPtBr(media.season)} de ${media.seasonYear}` : media.seasonYear || "Não informada")}</dd></div>
                   <div><dt>Estúdio principal</dt><dd>${escapeHtml(studios.join(", ") || "Não informado")}</dd></div>
                   <div><dt>Nota AniList</dt><dd>${Number.isFinite(score) && score > 0 ? `${(score / 10).toFixed(1)} / 10` : "Não informada"}</dd></div>
                 </dl>
@@ -217,7 +257,7 @@
                 headers: { "Content-Type": "application/json", Accept: "application/json" },
                 body: JSON.stringify({ query: detailsQuery, variables: { search: title } })
             });
-            if (!response.ok) throw new Error(`AniList respondeu com status ${response.status}.`);
+            if (!response.ok) throw new Error(`O AniList respondeu com o código ${response.status}.`);
             const payload = await response.json();
             if (payload.errors?.length) throw new Error(payload.errors[0].message || "Erro ao consultar o anime.");
             const media = payload.data?.Media;
@@ -228,7 +268,7 @@
             if (request !== activeRequest) return;
             status.hidden = false;
             status.classList.add("is-error");
-            status.textContent = `Não foi possível carregar os detalhes. ${error.message}`;
+            status.textContent = "Não foi possível carregar os detalhes agora. Verifique sua conexão e tente novamente.";
             content.hidden = false;
             const fallbackPoster = safeUrl(poster);
             content.innerHTML = `<div class="details-fallback">

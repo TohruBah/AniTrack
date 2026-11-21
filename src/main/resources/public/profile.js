@@ -204,7 +204,7 @@
     } catch (error) {
       console.error("Erro ao salvar personalização:", error);
       if (uploaded) await supabase.storage.from(BUCKET).remove([uploaded.path]);
-      setMessage(error.message || "Não foi possível salvar o perfil.", true);
+      setMessage("Não foi possível salvar as alterações do perfil. Verifique sua conexão e tente novamente.", true);
     } finally { button.disabled = false; }
   });
 

@@ -38,13 +38,30 @@
     let removeAvatarRequested = false;
     let previewObjectUrl = null;
 
+    // Traduzir mensagens comuns do serviço de autenticação para português do Brasil.
+    function translateServiceError(message) {
+        const original = String(message || "");
+        if (!original.trim()) return "";
+        const normalized = original.toLowerCase();
+        if (normalized.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
+        if (normalized.includes("user already registered")) return "Este e-mail já possui uma conta cadastrada.";
+        if (normalized.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
+        if (normalized.includes("password should be at least")) return "A senha não atende ao tamanho mínimo exigido.";
+        if (normalized.includes("email rate limit exceeded")) return "Muitas tentativas foram realizadas. Aguarde alguns instantes e tente novamente.";
+        if (normalized.includes("user not found")) return "Não encontramos uma conta com esses dados.";
+        if (normalized.includes("network request failed") || normalized.includes("failed to fetch")) return "Não foi possível conectar ao serviço. Verifique sua internet.";
+        return "Ocorreu um erro inesperado. Verifique sua conexão e tente novamente.";
+    }
+
     // Mensagens
     function showMessage(message, isError = false) {
+        message = translateServiceError(message);
         authMessage.textContent = message;
         authMessage.style.color = isError ? "#f3a4b8" : "#b6e9fa";
     }
 
     function showProfileMessage(message, isError = false) {
+        message = translateServiceError(message);
         profileMessage.textContent = message;
         profileMessage.style.color = isError ? "#f3a4b8" : "#b6e9fa";
     }

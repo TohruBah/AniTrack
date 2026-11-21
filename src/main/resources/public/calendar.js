@@ -57,6 +57,14 @@
         return media?.title?.userPreferred || media?.title?.english || media?.title?.romaji || "Anime sem título";
     }
 
+    function formatPtBr(value) {
+        const formats = {
+            TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
+            SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical"
+        };
+        return formats[value] || value || "Anime";
+    }
+
     function normalizeTitle(value) {
         return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             .toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, " ").trim();
@@ -149,7 +157,7 @@
                 headers: { "Content-Type": "application/json", Accept: "application/json" },
                 body: JSON.stringify({ query, variables: { page, from, to } })
             });
-            if (!response.ok) throw new Error(`AniList respondeu com status ${response.status}.`);
+            if (!response.ok) throw new Error(`O AniList respondeu com o código ${response.status}.`);
             const payload = await response.json();
             if (payload.errors?.length) throw new Error(payload.errors[0].message || "Erro ao consultar o calendário.");
             if (currentRequest !== requestId) return [];
@@ -169,7 +177,7 @@
         return `
           <button type="button" class="calendar-event ${own ? "is-collection" : "is-discovery"}"
             data-anime-detail="true" data-anime-title="${escapeHtml(title)}"
-            data-anime-poster="${escapeHtml(cover)}" data-anime-format="${escapeHtml(media.format || "Anime")}">
+            data-anime-poster="${escapeHtml(cover)}" data-anime-format="${escapeHtml(formatPtBr(media.format))}">
             ${cover ? `<img src="${escapeHtml(cover)}" alt="" loading="lazy">` : '<span class="calendar-event-placeholder">✦</span>'}
             <span class="calendar-event-info">
               <strong>${escapeHtml(title)}</strong>
@@ -205,7 +213,7 @@
             if (!dayEvents.length) {
                 const empty = document.createElement("p");
                 empty.className = "calendar-empty-day";
-                empty.textContent = "Sem lançamentos";
+                empty.textContent = "Nenhum lançamento";
                 eventsHost.append(empty);
             } else {
                 dayEvents.sort((a, b) => a.airingAt - b.airingAt).forEach(event => {
@@ -262,8 +270,8 @@
                 button.dataset.animeDetail = "true";
                 button.dataset.animeTitle = titleOf(media);
                 button.dataset.animePoster = media.coverImage?.large || media.coverImage?.medium || "";
-                button.dataset.animeFormat = media.format || "Anime";
-                button.textContent = `${timeOf(event.airingAt)} ${titleOf(media)} · EP ${event.episode}`;
+                button.dataset.animeFormat = formatPtBr(media.format);
+                button.textContent = `${timeOf(event.airingAt)} ${titleOf(media)} · Episódio ${event.episode}`;
                 button.title = `${titleOf(media)} — episódio ${event.episode}`;
                 eventsHost.append(button);
             });
@@ -291,7 +299,7 @@
         const currentRequest = ++requestId;
         status.hidden = false;
         status.classList.remove("is-error");
-        status.textContent = "Buscando programação de lançamentos...";
+        status.textContent = "Consultando a programação de lançamentos...";
         weekHost.replaceChildren();
         monthHost.replaceChildren();
 
@@ -314,7 +322,7 @@
             if (currentRequest !== requestId) return;
             status.hidden = false;
             status.classList.add("is-error");
-            status.textContent = `Não foi possível carregar os lançamentos. ${error.message}`;
+            status.textContent = "Não foi possível carregar os lançamentos. Verifique sua conexão e tente novamente.";
             console.error("AniTrack — calendário:", error);
         } finally {
             if (currentRequest === requestId) loading = false;

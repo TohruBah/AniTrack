@@ -31,11 +31,11 @@ RNF03 validação e integridade.
 Banco local: `data/anitrack.db`.
 
 
-## Funcionalidades adicionadas — Calendário e detalhes
+## Funcionalidades adicionadas — Calendário e página de detalhes
 
 - **Calendário de lançamentos:** alternância entre visualização semanal e mensal, consulta de episódios programados e destaque de títulos identificados na coleção do usuário.
 - **Página de detalhes do anime:** acessível a partir dos cards do catálogo, da Central de descobertas e dos eventos do calendário; apresenta sinopse, capa/banner, gêneros, formato, temporada, episódios, estúdio e obras relacionadas.
-- **Fonte de programação e metadados:** AniList GraphQL API (`https://graphql.anilist.co`). A programação depende dos dados publicados pelo serviço e pode sofrer alterações.
-- **Fuso horário:** o calendário oferece horário local do navegador ou UTC.
+- **Fonte de dados da programação e das informações dos animes:** API GraphQL do AniList (`https://graphql.anilist.co`). A programação depende dos dados publicados pelo serviço e pode sofrer alterações.
+- **Fuso horário:** o calendário oferece horário local do navegador ou Tempo Universal Coordenado (UTC).
 
 Os dados externos são carregados no navegador. A ausência de informações na API não impede o acesso ao restante do catálogo; a interface apresenta uma mensagem de erro e permite tentar novamente ao reabrir a tela.

@@ -452,6 +452,28 @@ function openAddScreen() {
         if (!event.target.closest(".anime-picker-field")) closeAnimeSuggestions();
     });
 
+    // Traduzir formatos recebidos das fontes externas para português do Brasil.
+    function formatPtBr(value) {
+        const formats = {
+            TV: "Série de TV", TV_SHORT: "Série curta de TV", MOVIE: "Filme",
+            SPECIAL: "Especial", OVA: "OVA", ONA: "ONA", MUSIC: "Videoclipe musical",
+            "TV Short": "Série curta de TV", Movie: "Filme", Special: "Especial", Music: "Videoclipe musical"
+        };
+        return formats[value] || value || "";
+    }
+
+    function generoPtBr(value) {
+        const genres = {
+            Action: "Ação", Adventure: "Aventura", Comedy: "Comédia", Drama: "Drama",
+            Fantasy: "Fantasia", Horror: "Terror", Mystery: "Mistério", Romance: "Romance",
+            "Sci-Fi": "Ficção científica", "Slice of Life": "Cotidiano", Sports: "Esportes",
+            Supernatural: "Sobrenatural", Thriller: "Suspense", Psychological: "Psicológico",
+            Mecha: "Robôs gigantes", Music: "Música", Historical: "Histórico",
+            Ecchi: "Ecchi", "Mahou Shoujo": "Garotas mágicas", Hentai: "Hentai"
+        };
+        return genres[value] || value;
+    }
+
     // Converter dados do Supabase
     function mapAnime(row) {
         return {
@@ -607,7 +629,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         } catch (error) {
             console.error("Erro ao carregar catálogo:", error);
             showMessage(
-                "Não foi possível carregar o catálogo: " + error.message,
+                "Não foi possível carregar o catálogo. Verifique sua conexão e tente novamente.",
                 true
             );
         }
@@ -621,7 +643,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const genres = [...new Set(animes.flatMap(a => a.genres || []))].sort((a,b) => a.localeCompare(b, "pt-BR"));
         const formats = [...new Set(animes.map(a => a.format).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
         filterGenre.replaceChildren(new Option("Todos os gêneros", ""));
-        genres.forEach(value => filterGenre.add(new Option(value, value)));
+        genres.forEach(value => filterGenre.add(new Option(generoPtBr(value), value)));
         filterFormat.replaceChildren(new Option("Todos os formatos", ""));
         formats.forEach(value => filterFormat.add(new Option(value, value)));
         filterGenre.value = genres.includes(currentGenre) ? currentGenre : "";
@@ -715,12 +737,12 @@ document.querySelectorAll(".nav-item").forEach(button => {
             meta.className = "anime-card-meta";
             if (anime.format) {
                 const format = document.createElement("span");
-                format.textContent = anime.format.toUpperCase();
+                format.textContent = formatPtBr(anime.format);
                 meta.append(format);
             }
             (anime.genres || []).slice(0, 2).forEach(genreName => {
                 const genre = document.createElement("span");
-                genre.textContent = genreName;
+                genre.textContent = generoPtBr(genreName);
                 meta.append(genre);
             });
             const details = document.createElement("p");
@@ -826,7 +848,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível atualizar o favorito: " + error.message, true);
+            showMessage("Não foi possível atualizar o favorito. Tente novamente.", true);
         }
     }
 
@@ -850,7 +872,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível atualizar a avaliação: " + error.message, true);
+            showMessage("Não foi possível atualizar a avaliação. Tente novamente.", true);
         }
     }
 
@@ -924,7 +946,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível excluir o anime: " + error.message, true);
+            showMessage("Não foi possível excluir o anime. Tente novamente.", true);
         }
     }
 
@@ -1087,7 +1109,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
 
         } catch (error) {
             console.error(error);
-            showMessage("Não foi possível salvar: " + error.message, true);
+            showMessage("Não foi possível salvar as alterações. Verifique os dados e tente novamente.", true);
 
         } finally {
             isSaving = false;
@@ -1104,7 +1126,7 @@ document.querySelectorAll(".nav-item").forEach(button => {
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
-            showMessage("Erro ao verificar sessão: " + error.message, true);
+            showMessage("Não foi possível verificar sua sessão. Entre novamente.", true);
             return;
         }
 
