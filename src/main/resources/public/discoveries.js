@@ -35,8 +35,8 @@
     }
 
     function showDiscoveries() {
-        [catalogView, statisticsView, addAnimeView, profileView, view].forEach(section => {
-            if (section) section.hidden = section !== view;
+        document.querySelectorAll(".main-content .page-view").forEach(section => {
+            section.hidden = section !== view;
         });
         setActiveNav();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -122,6 +122,13 @@
             const genres = anime.genres.slice(0, 3).join(" · ");
             const card = document.createElement("article");
             card.className = "discovery-card";
+            card.dataset.animeDetail = "true";
+            card.dataset.animeTitle = title;
+            card.dataset.animePoster = poster;
+            card.dataset.animeFormat = anime.subtype || "Anime";
+            card.tabIndex = 0;
+            card.setAttribute("role", "button");
+            card.setAttribute("aria-label", `Ver detalhes de ${title}`);
             card.innerHTML = `
                 <div class="discovery-poster-wrap">
                     ${poster ? `<img class="discovery-poster" src="${safeText(poster)}" alt="Capa de ${safeText(title)}" loading="lazy">` : '<div class="discovery-poster"></div>'}

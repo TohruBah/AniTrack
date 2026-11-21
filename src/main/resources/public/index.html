@@ -192,6 +192,11 @@
                         Central de descobertas
                     </button>
 
+                    <button type="button" class="nav-item" data-view="calendar">
+                        <span class="nav-icon">▦</span>
+                        Calendário
+                    </button>
+
                     <button type="button" class="nav-item" id="profileNavButton">
                         <span class="nav-icon">◎</span>
                         Meu perfil
@@ -392,6 +397,53 @@
                 </div>
                 <div id="discoveriesStatus" class="discoveries-status" role="status" aria-live="polite">Carregando recomendações...</div>
                 <div id="discoveriesGrid" class="discoveries-grid"></div>
+            </section>
+
+            <!-- CALENDÁRIO DE LANÇAMENTOS -->
+            <section id="calendarView" class="page-view calendar-page" hidden>
+                <header class="page-header">
+                    <div>
+                        <span class="eyebrow">ACOMPANHE OS LANÇAMENTOS</span>
+                        <h1>Calendário</h1>
+                        <p>Veja os episódios programados e acompanhe os animes da sua coleção.</p>
+                    </div>
+                    <div class="calendar-view-switch" role="group" aria-label="Visualização do calendário">
+                        <button type="button" class="calendar-view-button is-active" data-calendar-mode="week" aria-pressed="true">Semanal</button>
+                        <button type="button" class="calendar-view-button" data-calendar-mode="month" aria-pressed="false">Mensal</button>
+                    </div>
+                </header>
+
+                <div class="calendar-toolbar">
+                    <div class="calendar-period-controls">
+                        <button type="button" id="calendarPrevious" class="calendar-arrow" aria-label="Período anterior">‹</button>
+                        <button type="button" id="calendarToday" class="calendar-today">Hoje</button>
+                        <button type="button" id="calendarNext" class="calendar-arrow" aria-label="Próximo período">›</button>
+                        <h2 id="calendarPeriodLabel">Carregando calendário...</h2>
+                    </div>
+                    <label class="calendar-timezone-control" for="calendarTimezone">
+                        Fuso horário
+                        <select id="calendarTimezone">
+                            <option value="local">Meu horário local</option>
+                            <option value="UTC">UTC</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="calendar-legend">
+                    <span><i class="calendar-legend-dot is-collection"></i> Na minha coleção</span>
+                    <span><i class="calendar-legend-dot is-discovery"></i> Outros lançamentos</span>
+                </div>
+                <div id="calendarStatus" class="calendar-status" role="status" aria-live="polite">Carregando lançamentos...</div>
+                <div id="calendarWeek" class="calendar-week-grid"></div>
+                <div id="calendarMonth" class="calendar-month-grid" hidden></div>
+                <p class="calendar-source-note">Programação fornecida pelo AniList. Datas e horários podem sofrer alterações pelas distribuidoras.</p>
+            </section>
+
+            <!-- DETALHES DO ANIME -->
+            <section id="animeDetailsView" class="page-view anime-details-page" hidden>
+                <button type="button" id="animeDetailsBack" class="details-back-button">← Voltar</button>
+                <div id="animeDetailsStatus" class="details-status" role="status" aria-live="polite">Carregando informações do anime...</div>
+                <div id="animeDetailsContent" hidden></div>
             </section>
 
             <!-- PÁGINA DE ESTATÍSTICAS -->
@@ -734,6 +786,8 @@
     <script src="/theme.js"></script>
     <script src="/profile.js"></script>
     <script src="/discoveries.js"></script>
+    <script src="/calendar.js"></script>
+    <script src="/anime-details.js"></script>
 
 </body>
 </html>

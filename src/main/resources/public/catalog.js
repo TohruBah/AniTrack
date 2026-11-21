@@ -137,6 +137,8 @@ function openCatalog() {
     statisticsView.hidden = true;
     addAnimeView.hidden = true;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -146,6 +148,8 @@ function openStatistics() {
     statisticsView.hidden = false;
     addAnimeView.hidden = true;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -155,6 +159,8 @@ function openAddScreen() {
     statisticsView.hidden = true;
     addAnimeView.hidden = false;
     document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
+    document.querySelector("#calendarView")?.setAttribute("hidden", "");
+    document.querySelector("#animeDetailsView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -756,6 +762,16 @@ document.querySelectorAll(".nav-item").forEach(button => {
                 sharedLabel.textContent = "Somente visualização";
                 actions.append(sharedLabel);
             }
+
+            const detailsButton = document.createElement("button");
+            detailsButton.type = "button";
+            detailsButton.className = "anime-details-button";
+            detailsButton.textContent = "Detalhes";
+            detailsButton.dataset.animeDetail = "true";
+            detailsButton.dataset.animeTitle = anime.title;
+            detailsButton.dataset.animePoster = anime.posterUrl || "";
+            detailsButton.dataset.animeFormat = anime.format || "";
+            actions.append(detailsButton);
 
             item.append(coverContainer, info, actions);
             list.append(item);
