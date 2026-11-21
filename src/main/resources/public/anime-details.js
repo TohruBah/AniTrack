@@ -8,79 +8,76 @@
     const content = document.querySelector("#animeDetailsContent");
     const backButton = document.querySelector("#animeDetailsBack");
     const API = "https://kitsu.io/api/edge";
-    const ALLOWED_FORMATS = new Set(["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"]);
     let previousView = null;
     let previousNav = null;
     let activeRequest = 0;
     let currentTitle = "";
     const translationCache = new Map();
 
-    function normalizeTitle(value) {
-        return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, " ").trim();
-    }
-
-    function kitsuFormat(subtype) {
-        const formats = {
-            "tv": "TV", "tv short": "TV_SHORT", "movie": "MOVIE",
-            "special": "SPECIAL", "ova": "OVA", "ona": "ONA"
-        };
-        return formats[String(subtype || "").trim().toLowerCase()] || "";
-    }
-
     function mapKitsuAnime(item, included = []) {
         const attributes = item?.attributes || {};
-        const format = kitsuFormat(attributes.subtype);
-        if (!format || !ALLOWED_FORMATS.has(format)) return null;
-        const includedMap = new Map(included.map(entry => [`${entry.type}:${entry.id}`, entry]));
-        const genres = (item.relationships?.genres?.data || [])
-            .map(ref => includedMap.get(`${ref.type}:${ref.id}`)?.attributes?.name)
+        const includedById = new Map(included.map(entry => [`${entry.type}:${entry.id}`, entry]));
+        const genreRefs = item?.relationships?.genres?.data || [];
+        const genres = genreRefs
+            .map(ref => includedById.get(`${ref.type}:${ref.id}`)?.attributes?.name)
             .filter(Boolean);
-        const startDate = attributes.startDate || "";
-        const month = Number(startDate.slice(5, 7));
-        const season = month >= 3 && month <= 5 ? "SPRING"
-            : month >= 6 && month <= 8 ? "SUMMER"
-            : month >= 9 && month <= 11 ? "FALL" : month ? "WINTER" : null;
         const poster = attributes.posterImage || {};
         const cover = attributes.coverImage || {};
-        const rating = Number(attributes.averageRating);
+        const subtype = String(attributes.subtype || "").toLowerCase();
+        const formats = {
+            tv: "TV", "tv short": "TV_SHORT", movie: "MOVIE",
+            special: "SPECIAL", ova: "OVA", ona: "ONA"
+        };
+        const status = {
+            finished: "FINISHED", current: "RELEASING",
+            unreleased: "NOT_YET_RELEASED", tba: "NOT_YET_RELEASED"
+        };
+        const titles = attributes.titles || {};
+        const title = attributes.canonicalTitle || titles.en || titles.en_jp || titles.ja_jp || currentTitle;
         return {
             id: item.id,
-            title: {
-                userPreferred: attributes.canonicalTitle || attributes.titles?.en || attributes.titles?.en_jp || "Anime sem título",
-                english: attributes.titles?.en || "",
-                romaji: attributes.titles?.en_jp || ""
-            },
-            description: attributes.synopsis || "Sinopse não informada.",
-            coverImage: { extraLarge: poster.original || poster.large || poster.medium || "", large: poster.large || poster.medium || "" },
+            title: { userPreferred: title, english: titles.en || title, romaji: titles.en_jp || title },
+            description: attributes.synopsis || "",
+            coverImage: { extraLarge: cover.large || cover.original || poster.large, large: poster.large || poster.original },
             bannerImage: cover.original || cover.large || "",
             genres,
-            format,
+            format: formats[subtype] || "TV",
             episodes: attributes.episodeCount,
             duration: attributes.episodeLength,
-            status: ({ finished: "FINISHED", current: "RELEASING", unreleased: "NOT_YET_RELEASED", tba: "NOT_YET_RELEASED" })[String(attributes.status || "").toLowerCase()] || "",
-            season,
-            seasonYear: startDate ? Number(startDate.slice(0, 4)) || null : null,
-            averageScore: Number.isFinite(rating) ? Math.round(rating) : null,
-            popularity: attributes.userCount || 0,
+            status: status[String(attributes.status || "").toLowerCase()] || "",
+            season: "",
+            seasonYear: attributes.startDate ? Number(String(attributes.startDate).slice(0, 4)) : null,
+            averageScore: attributes.averageRating ? Math.round(Number(attributes.averageRating)) : null,
+            popularity: attributes.userCount || null,
             studios: { nodes: [] },
             relations: { edges: [] }
         };
     }
 
     async function fetchAnimeDetails(title) {
-        const params = new URLSearchParams({ "filter[text]": title, "page[limit]": "10", include: "genres" });
+        const params = new URLSearchParams({
+            "filter[text]": title,
+            "page[limit]": "10",
+            include: "genres"
+        });
         const response = await fetch(`${API}/anime?${params.toString()}`, {
             headers: { Accept: "application/vnd.api+json" }
         });
-        if (!response.ok) throw new Error(`A consulta dos detalhes falhou (${response.status}).`);
+        if (!response.ok) throw new Error(`Falha ao consultar o catálogo (${response.status}).`);
         const payload = await response.json();
-        const candidates = (payload.data || []).map(item => mapKitsuAnime(item, payload.included || [])).filter(Boolean);
-        if (!candidates.length) throw new Error("Nenhum anime compatível foi encontrado.");
-        const wanted = normalizeTitle(title);
-        return candidates.find(item => normalizeTitle(titleOf(item)) === wanted)
-            || candidates.find(item => normalizeTitle(item.title.english) === wanted)
-            || candidates[0];
+        const items = (payload.data || []).filter(item => {
+            const subtype = String(item.attributes?.subtype || "").toLowerCase();
+            return ["tv", "tv short", "movie", "special", "ova", "ona"].includes(subtype);
+        });
+        if (!items.length) throw new Error("Anime não encontrado no catálogo.");
+        const normalized = title.toLocaleLowerCase("pt-BR").trim();
+        const selected = items.find(item => {
+            const attrs = item.attributes || {};
+            const candidates = [attrs.canonicalTitle, ...Object.values(attrs.titles || {})]
+                .filter(Boolean).map(value => String(value).toLocaleLowerCase("pt-BR").trim());
+            return candidates.includes(normalized);
+        }) || items[0];
+        return mapKitsuAnime(selected, payload.included || []);
     }
 
     function escapeHtml(value) {
@@ -325,15 +322,15 @@
             if (request !== activeRequest) return;
             status.hidden = false;
             status.classList.add("is-error");
-            status.textContent = "Não foi possível carregar os detalhes agora. Verifique sua conexão e tente novamente.";
+            status.textContent = "Não foi possível encontrar as informações deste anime agora. Tente novamente em instantes.";
             content.hidden = false;
             const fallbackPoster = safeUrl(poster);
             content.innerHTML = `<div class="details-fallback">
                 ${fallbackPoster ? `<img src="${escapeHtml(fallbackPoster)}" alt="">` : ""}
-                <div><h1>${escapeHtml(title)}</h1><p>Não foi possível obter os dados completos agora. Verifique sua conexão e tente novamente.</p>
+                <div><h1>${escapeHtml(title)}</h1><p>Não foi possível obter os dados completos agora. Tente novamente em instantes.</p>
                 ${format ? `<span>${escapeHtml(format)}</span>` : ""}</div>
               </div>`;
-            console.error("AniTrack — detalhes do anime:", error);
+            console.error("AniTrack — falha ao carregar detalhes:", error);
         }
     }
 
