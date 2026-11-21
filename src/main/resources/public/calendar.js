@@ -11,8 +11,6 @@
     const periodLabel = $("#calendarPeriodLabel");
     const timezoneSelect = $("#calendarTimezone");
     const ANILIST_API = "https://graphql.anilist.co";
-    // Formatos permitidos na programação: séries, filmes e especiais de anime.
-    const ALLOWED_ANIME_FORMATS = new Set(["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"]);
 
     let mode = "week";
     let anchorDate = new Date();
@@ -31,7 +29,6 @@
             episode
             media {
               id
-              type
               title { userPreferred romaji english }
               coverImage { medium large }
               format
@@ -169,10 +166,7 @@
             hasNext = Boolean(result?.pageInfo?.hasNextPage);
             page += 1;
         }
-        // O calendário deve conter exclusivamente obras do tipo ANIME e os formatos permitidos.
-        return all.filter(event =>
-            event.media?.type === "ANIME" && ALLOWED_ANIME_FORMATS.has(event.media?.format)
-        );
+        return all;
     }
 
     function eventCard(event) {
