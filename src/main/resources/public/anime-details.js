@@ -52,6 +52,19 @@
     // A página de detalhes aceita apenas formatos de anime.
     const ALLOWED_FORMATS = new Set(["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"]);
 
+
+    // Aceita somente URLs HTTP(S) válidas para evitar atributos src/style inseguros.
+    function safeUrl(value) {
+        if (typeof value !== "string" || !value.trim()) return "";
+        try {
+            const url = new URL(value, window.location.href);
+            if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+            return url.href;
+        } catch {
+            return "";
+        }
+    }
+
     function escapeHtml(value) {
         return String(value ?? "").replace(/[&<>"']/g, char => ({
             "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
