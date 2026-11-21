@@ -136,6 +136,7 @@ function openCatalog() {
     catalogView.hidden = false;
     statisticsView.hidden = true;
     addAnimeView.hidden = true;
+    document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -144,6 +145,7 @@ function openStatistics() {
     catalogView.hidden = true;
     statisticsView.hidden = false;
     addAnimeView.hidden = true;
+    document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -152,6 +154,7 @@ function openAddScreen() {
     catalogView.hidden = true;
     statisticsView.hidden = true;
     addAnimeView.hidden = false;
+    document.querySelector("#discoveriesView")?.setAttribute("hidden", "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
 
