@@ -7,47 +7,81 @@
     const status = document.querySelector("#animeDetailsStatus");
     const content = document.querySelector("#animeDetailsContent");
     const backButton = document.querySelector("#animeDetailsBack");
-    const API = "https://graphql.anilist.co";
+    const API = "https://kitsu.io/api/edge";
+    const ALLOWED_FORMATS = new Set(["TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA"]);
     let previousView = null;
     let previousNav = null;
     let activeRequest = 0;
     let currentTitle = "";
     const translationCache = new Map();
 
-    const detailsQuery = `
-      query ($search: String) {
-        Media(search: $search, type: ANIME) {
-          id
-          title { userPreferred romaji english native }
-          description(asHtml: false)
-          coverImage { extraLarge large }
-          bannerImage
-          genres
-          format
-          episodes
-          duration
-          status
-          season
-          seasonYear
-          averageScore
-          popularity
-          studios(isMain: true) { nodes { name } }
-          relations {
-            edges {
-              relationType(version: 2)
-              node {
-                id
-                type
-                title { userPreferred romaji english }
-                coverImage { medium large }
-                format
-                season
-                seasonYear
-              }
-            }
-          }
-        }
-      }`;
+    function normalizeTitle(value) {
+        return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]+/g, " ").trim();
+    }
+
+    function kitsuFormat(subtype) {
+        const formats = {
+            "tv": "TV", "tv short": "TV_SHORT", "movie": "MOVIE",
+            "special": "SPECIAL", "ova": "OVA", "ona": "ONA"
+        };
+        return formats[String(subtype || "").trim().toLowerCase()] || "";
+    }
+
+    function mapKitsuAnime(item, included = []) {
+        const attributes = item?.attributes || {};
+        const format = kitsuFormat(attributes.subtype);
+        if (!format || !ALLOWED_FORMATS.has(format)) return null;
+        const includedMap = new Map(included.map(entry => [`${entry.type}:${entry.id}`, entry]));
+        const genres = (item.relationships?.genres?.data || [])
+            .map(ref => includedMap.get(`${ref.type}:${ref.id}`)?.attributes?.name)
+            .filter(Boolean);
+        const startDate = attributes.startDate || "";
+        const month = Number(startDate.slice(5, 7));
+        const season = month >= 3 && month <= 5 ? "SPRING"
+            : month >= 6 && month <= 8 ? "SUMMER"
+            : month >= 9 && month <= 11 ? "FALL" : month ? "WINTER" : null;
+        const poster = attributes.posterImage || {};
+        const cover = attributes.coverImage || {};
+        const rating = Number(attributes.averageRating);
+        return {
+            id: item.id,
+            title: {
+                userPreferred: attributes.canonicalTitle || attributes.titles?.en || attributes.titles?.en_jp || "Anime sem título",
+                english: attributes.titles?.en || "",
+                romaji: attributes.titles?.en_jp || ""
+            },
+            description: attributes.synopsis || "Sinopse não informada.",
+            coverImage: { extraLarge: poster.original || poster.large || poster.medium || "", large: poster.large || poster.medium || "" },
+            bannerImage: cover.original || cover.large || "",
+            genres,
+            format,
+            episodes: attributes.episodeCount,
+            duration: attributes.episodeLength,
+            status: ({ finished: "FINISHED", current: "RELEASING", unreleased: "NOT_YET_RELEASED", tba: "NOT_YET_RELEASED" })[String(attributes.status || "").toLowerCase()] || "",
+            season,
+            seasonYear: startDate ? Number(startDate.slice(0, 4)) || null : null,
+            averageScore: Number.isFinite(rating) ? Math.round(rating) : null,
+            popularity: attributes.userCount || 0,
+            studios: { nodes: [] },
+            relations: { edges: [] }
+        };
+    }
+
+    async function fetchAnimeDetails(title) {
+        const params = new URLSearchParams({ "filter[text]": title, "page[limit]": "10", include: "genres" });
+        const response = await fetch(`${API}/anime?${params.toString()}`, {
+            headers: { Accept: "application/vnd.api+json" }
+        });
+        if (!response.ok) throw new Error(`A consulta dos detalhes falhou (${response.status}).`);
+        const payload = await response.json();
+        const candidates = (payload.data || []).map(item => mapKitsuAnime(item, payload.included || [])).filter(Boolean);
+        if (!candidates.length) throw new Error("Nenhum anime compatível foi encontrado.");
+        const wanted = normalizeTitle(title);
+        return candidates.find(item => normalizeTitle(titleOf(item)) === wanted)
+            || candidates.find(item => normalizeTitle(item.title.english) === wanted)
+            || candidates[0];
+    }
 
     function escapeHtml(value) {
         return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -284,16 +318,7 @@
         content.replaceChildren();
 
         try {
-            const response = await fetch(API, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", Accept: "application/json" },
-                body: JSON.stringify({ query: detailsQuery, variables: { search: title } })
-            });
-            if (!response.ok) throw new Error(`Não foi possível consultar os dados (${response.status}).`);
-            const payload = await response.json();
-            if (payload.errors?.length) throw new Error(payload.errors[0].message || "Erro ao consultar o anime.");
-            const media = payload.data?.Media;
-            if (!media) throw new Error("Não encontramos informações para este anime.");
+            const media = await fetchAnimeDetails(title);
             if (request !== activeRequest) return;
             await renderMedia(media, request);
         } catch (error) {
