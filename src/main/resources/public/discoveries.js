@@ -27,10 +27,6 @@
     let allAnime = [];
     let requestNumber = 0;
     let searchTimer = null;
-<<<<<<< HEAD
-=======
-    let currentUserId = null;
->>>>>>> origin/main
 
     function setActiveNav() {
         document.querySelectorAll(".nav-item").forEach(item => {
@@ -65,11 +61,7 @@
         const response = await fetch(requestUrl(params), {
             headers: { Accept: "application/vnd.api+json" }
         });
-<<<<<<< HEAD
         if (!response.ok) throw new Error(`O serviço de recomendações respondeu com o status ${response.status}.`);
-=======
-        if (!response.ok) throw new Error(`A Kitsu respondeu com o status ${response.status}.`);
->>>>>>> origin/main
         const payload = await response.json();
         const included = new Map((payload.included || []).map(item => [`${item.type}:${item.id}`, item]));
         return (payload.data || []).map(item => {
@@ -139,12 +131,7 @@
                     <h3 class="discovery-card-title" title="${safeText(title)}">${safeText(title)}</h3>
                     <div class="discovery-card-meta"><span>${safeText(anime.subtype || "Anime")}</span><span>•</span><span>${safeText(formatYear(anime.startDate))}</span></div>
                     ${genres ? `<div class="discovery-card-genres">${safeText(genres)}</div>` : ""}
-<<<<<<< HEAD
-                        </div>`;
-=======
-                    <a class="discovery-card-link" href="https://kitsu.io/anime/${encodeURIComponent(anime.slug || anime.id)}" target="_blank" rel="noopener noreferrer">Ver detalhes na Kitsu ↗</a>
                 </div>`;
->>>>>>> origin/main
             grid.append(card);
         });
     }
@@ -162,11 +149,7 @@
         heading.textContent = labels[category];
         status.hidden = false;
         status.classList.remove("is-error");
-<<<<<<< HEAD
         status.textContent = "Carregando recomendações...";
-=======
-        status.textContent = "Buscando animes na Kitsu...";
->>>>>>> origin/main
         grid.replaceChildren();
         resultCount.textContent = "";
         try {
@@ -204,16 +187,4 @@
     });
     genreSelect.addEventListener("change", render);
 
-<<<<<<< HEAD
-=======
-    // Mantém a tela pronta para a próxima autenticação sem acessar dados privados.
-    if (window.supabaseClient?.auth) {
-        window.supabaseClient.auth.getSession().then(({ data }) => {
-            currentUserId = data.session?.user?.id || null;
-        }).catch(error => console.warn("AniTrack: não foi possível verificar a sessão para descobertas.", error));
-        window.supabaseClient.auth.onAuthStateChange((_event, session) => {
-            currentUserId = session?.user?.id || null;
-        });
-    }
->>>>>>> origin/main
 })();
